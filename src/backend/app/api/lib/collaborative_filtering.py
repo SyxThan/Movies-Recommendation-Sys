@@ -1,4 +1,3 @@
-import pandas as pd 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy import sparse 
@@ -18,6 +17,8 @@ class CF:
         # Số lượng user và item
         self.n_users = int(np.max(self.Y_data[:, 0])) + 1
         self.n_items = int(np.max(self.Y_data[:, 1])) + 1
+        # Chỉ giữ các item thực sự có trong dữ liệu để tránh dự đoán cho ID "ảo"
+        self.item_ids = np.unique(self.Y_data[:, 1]).astype(int)
 
     # 1. Chuẩn hóa dữ liệu
     def normalize_Y(self):
@@ -109,11 +110,11 @@ class CF:
         Gợi ý top_n item cho user u
         """
         ids = np.where(self.Y_data[:, 0] == u)[0]
-        rated_items = self.Y_data[ids, 1]
+        rated_items = set(self.Y_data[ids, 1].astype(int).tolist())
 
         predictions = []
 
-        for i in range(self.n_items):
+        for i in self.item_ids:
             if i not in rated_items:
                 score = self.__pred(u, i, normalized=0)
                 predictions.append((i, score))
