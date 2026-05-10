@@ -538,7 +538,7 @@ img {
 /* ---- Sidebar Nav ---- */
 .nav-sidebar {
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
   background: var(--surface-container-low);
   display: flex;
   flex-direction: column;
@@ -547,6 +547,8 @@ img {
   top: 0;
   z-index: 100;
   flex-shrink: 0;
+  align-self: flex-start;
+  overflow-y: auto;
 }
 .nav-logo {
   font-family: var(--font-display);

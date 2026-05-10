@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import HeroBanner from '../components/movie/HeroBanner';
 import MovieRow from '../components/movie/MovieRow';
 import movieApi from '../api/movieApi';
+import recommendApi from '../api/recommendApi';
+import { getStrategyBadge, getStrategySubtitle } from '../components/movie/strategyBadge';
 import { useAuth } from '../context/AuthContext';
 
 const DEMO_TRENDING = [
@@ -20,9 +22,20 @@ export default function HomePage() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [trending, setTrending] = useState([]);
-  const [recommended, setRecommended] = useState([]);
   const [topRated, setTopRated] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Personalized recommendations
+  const [recommended, setRecommended] = useState([]);
+  const [recStrategy, setRecStrategy] = useState(null);
+  const [recSources, setRecSources] = useState({});
+  const [recLoading, setRecLoading] = useState(false);
+
+  // Similar to watched
+  const [similarToWatched, setSimilarToWatched] = useState([]);
+  const [stwStrategy, setStwStrategy] = useState(null);
+  const [stwSeedCount, setStwSeedCount] = useState(null);
+  const [stwLoading, setStwLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,16 +47,6 @@ export default function HomePage() {
         ]);
         setTrending(trendRes.items || trendRes || []);
         setTopRated(topRes.items || topRes || []);
-
-        if (isAuthenticated) {
-          try {
-            const recRes = await movieApi.getRecommendations({ top_n: 12 });
-            setRecommended(recRes.recommendations || []);
-          } catch (err) {
-            console.error('[recommendation] Failed to fetch:', err);
-            setRecommended([]);
-          }
-        }
       } catch (err) {
         console.error('[home] Failed to fetch movies:', err);
         setTrending(DEMO_TRENDING);
@@ -53,7 +56,54 @@ export default function HomePage() {
       }
     };
     fetchData();
+  }, []);
+
+  // Fetch personalized + similar-to-watched in parallel khi user đăng nhập
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setRecommended([]);
+      setSimilarToWatched([]);
+      setRecStrategy(null);
+      setStwStrategy(null);
+      return;
+    }
+
+    setRecLoading(true);
+    setStwLoading(true);
+
+    recommendApi
+      .getPersonalized({ top_n: 12 })
+      .then((res) => {
+        setRecommended(res.recommendations);
+        setRecStrategy(res.strategy);
+        setRecSources(res.sources);
+      })
+      .catch((err) => {
+        console.error('[recommendation/me] Failed:', err);
+        setRecommended([]);
+      })
+      .finally(() => setRecLoading(false));
+
+    recommendApi
+      .getSimilarToWatched({ top_n: 12 })
+      .then((res) => {
+        setSimilarToWatched(res.recommendations);
+        setStwStrategy(res.strategy);
+        setStwSeedCount(res.seedCount);
+      })
+      .catch((err) => {
+        console.error('[recommendation/similar-to-watched] Failed:', err);
+        setSimilarToWatched([]);
+      })
+      .finally(() => setStwLoading(false));
   }, [isAuthenticated]);
+
+  const recBadge = getStrategyBadge(recStrategy, recSources);
+  const recSubtitle = getStrategySubtitle(recStrategy, recSources);
+  const stwBadge = getStrategyBadge(stwStrategy);
+  const stwSubtitle = getStrategySubtitle(stwStrategy, {}, stwSeedCount);
+  const showSimilarToWatched =
+    isAuthenticated && stwStrategy === 'watched_based' && similarToWatched.length > 0;
 
   return (
     <div className="fade-in">
@@ -77,6 +127,32 @@ export default function HomePage() {
       {/* Hero Banner */}
       <HeroBanner movies={trending} />
 
+      {/* Personalized Recommendations - đặt LÊN ĐẦU vì quan trọng nhất */}
+      {isAuthenticated && (
+        <MovieRow
+          title="🎯 Recommended for You"
+          subtitle={recSubtitle}
+          badge={recBadge}
+          movies={recommended}
+          loading={recLoading}
+          cardWidth={180}
+          onSeeAll={() => navigate('/discover')}
+          emptyMessage="No recommendations yet. Watch a few movies to get personalized picks!"
+        />
+      )}
+
+      {/* Because You Watched - chỉ hiện khi user có watch history thật */}
+      {showSimilarToWatched && (
+        <MovieRow
+          title="🍿 Because You Watched"
+          subtitle={stwSubtitle}
+          badge={stwBadge}
+          movies={similarToWatched}
+          loading={stwLoading}
+          cardWidth={180}
+        />
+      )}
+
       {/* Trending Now */}
       <MovieRow
         title="🔥 Trending Now"
@@ -92,16 +168,6 @@ export default function HomePage() {
         loading={loading}
         cardWidth={180}
       />
-
-      {/* Personalized Recommendations */}
-      {isAuthenticated && (
-        <MovieRow
-          title="🎯 Recommended for You"
-          movies={recommended}
-          loading={loading}
-          cardWidth={180}
-        />
-      )}
 
       {/* CTA for guests */}
       {!isAuthenticated && (

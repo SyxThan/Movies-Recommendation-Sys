@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ChatProvider } from './context/ChatContext';
+import ChatBotWidget from './components/chat/ChatBotWidget';
 
 // Layout
 import Sidebar from './components/layout/Sidebar';
@@ -70,7 +72,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ChatProvider>
+          <AppRoutes />
+          <ChatBotWidget />
+        </ChatProvider>
       </AuthProvider>
     </BrowserRouter>
   );
