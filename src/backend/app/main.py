@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import auth, movies, ratings, watchlist, recommends
+from app.api.routes import auth, movies, ratings, watchlist, recommends, chat
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -27,6 +27,7 @@ app.include_router(movies.router,    prefix="/api/v1")
 app.include_router(ratings.router,   prefix="/api/v1")
 app.include_router(watchlist.router, prefix="/api/v1")
 app.include_router(recommends.router, prefix="/api/v1")
+app.include_router(chat.router,      prefix="/api/v1")
 
 @app.get("/", tags=["Health"])
 def health_check():
