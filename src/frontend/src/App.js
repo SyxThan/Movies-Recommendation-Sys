@@ -33,7 +33,7 @@ const SIDEBAR_ROUTES = [
 
 function AppLayout() {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="flex min-h-screen">
       {/* Background light leaks */}
       <div className="light-leak light-leak-1" />
       <div className="light-leak light-leak-2" />
@@ -41,7 +41,7 @@ function AppLayout() {
 
       <Sidebar />
 
-      <main className="main-content" style={{ position: 'relative', zIndex: 1 }}>
+      <main className="main-content relative z-[1]">
         <Routes>
           {SIDEBAR_ROUTES.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />

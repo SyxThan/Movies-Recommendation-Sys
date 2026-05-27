@@ -4,9 +4,9 @@ import MovieGrid from '../components/movie/MovieGrid';
 import movieApi from '../api/movieApi';
 
 const SORT_OPTIONS = [
-  { label: '⭐ Top Rated', value: 'rating' },
-  { label: '📅 Recent Releases', value: 'release_date' },
-  { label: '📽️ By Title (A-Z)', value: 'title' },
+  { label: 'Top Rated', value: 'rating' },
+  { label: 'Recent Releases', value: 'release_date' },
+  { label: 'By Title (A-Z)', value: 'title' },
 ];
 
 export default function AllMoviesPage() {
@@ -180,93 +180,42 @@ export default function AllMoviesPage() {
   return (
     <div className="fade-in">
       {/* Header */}
-      <div style={{
-        marginBottom: 'var(--spacing-10)',
-      }}>
-        <h1 className="display-md" style={{ marginBottom: 'var(--spacing-2)' }}>
-          🎬 All Movies
+      <div className="mb-10">
+        <h1 className="display-md mb-2">
+          All Movies
         </h1>
-        <p className="body-lg" style={{ color: 'var(--on-surface-variant)' }}>
+        <p className="body-lg text-[var(--on-surface-variant)]">
           Explore our complete film library
         </p>
       </div>
 
       {/* Search Bar */}
-      <div style={{
-        marginBottom: 'var(--spacing-6)',
-        display: 'flex',
-        gap: 'var(--spacing-3)',
-        alignItems: 'center',
-      }}>
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          background: 'var(--surface-container)',
-          borderRadius: 'var(--radius-full)',
-          paddingLeft: 'var(--spacing-4)',
-          border: '1px solid var(--outline)',
-        }}>
-          <span style={{ color: 'var(--on-surface-variant)' }}>🔍</span>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex flex-1 items-center rounded-full border border-[var(--outline)] bg-[var(--surface-container)] pl-4">
+          <span className="text-[var(--on-surface-variant)]">⌕</span>
           <input
             type="text"
             placeholder="Search movies..."
             value={searchQuery}
             onChange={handleSearch}
-            style={{
-              flex: 1,
-              background: 'transparent',
-              border: 'none',
-              paddingLeft: 'var(--spacing-3)',
-              padding: 'var(--spacing-3) var(--spacing-4)',
-              fontSize: '0.95rem',
-              color: 'var(--on-surface)',
-              outline: 'none',
-            }}
+            className="flex-1 border-none bg-transparent px-4 py-3 text-[0.95rem] text-[var(--on-surface)] outline-none"
           />
         </div>
       </div>
 
       {/* Filters Section */}
-      <div style={{
-        marginBottom: 'var(--spacing-8)',
-      }}>
+      <div className="mb-8">
         {/* Sort Options */}
-        <div style={{
-          marginBottom: 'var(--spacing-4)',
-        }}>
-          <p className="label-md" style={{
-            marginBottom: 'var(--spacing-2)',
-            color: 'var(--on-surface-variant)',
-          }}>
+        <div className="mb-4">
+          <p className="label-md mb-2 text-[var(--on-surface-variant)]">
             Sort by
           </p>
-          <div style={{
-            display: 'flex',
-            gap: 'var(--spacing-2)',
-            flexWrap: 'wrap',
-          }}>
+          <div className="flex flex-wrap gap-2">
             {SORT_OPTIONS.map((option) => (
               <button
                 key={option.value}
                 onClick={() => handleSortChange(option.value)}
-                style={{
-                  padding: 'var(--spacing-2) var(--spacing-4)',
-                  borderRadius: 'var(--radius-full)',
-                  background: selectedSort === option.value
-                    ? 'rgba(159, 255, 136, 0.15)'
-                    : 'var(--surface-container)',
-                  border: selectedSort === option.value
-                    ? '1px solid rgba(159, 255, 136, 0.3)'
-                    : '1px solid rgba(73, 72, 71, 0.2)',
-                  color: selectedSort === option.value
-                    ? 'var(--primary)'
-                    : 'var(--on-surface)',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: selectedSort === option.value ? 600 : 400,
-                  transition: 'all var(--transition-smooth)',
-                }}
+                className={`rounded-full px-4 py-2 text-[0.875rem] transition ${selectedSort === option.value ? 'border border-[rgba(159,255,136,0.3)] bg-[rgba(159,255,136,0.15)] font-semibold text-[var(--primary)]' : 'border border-[rgba(73,72,71,0.2)] bg-[var(--surface-container)] text-[var(--on-surface)]'}`}
               >
                 {option.label}
               </button>
@@ -277,39 +226,15 @@ export default function AllMoviesPage() {
         {/* Genre Filter */}
         {genres.length > 0 && (
           <div>
-            <p className="label-md" style={{
-              marginBottom: 'var(--spacing-2)',
-              color: 'var(--on-surface-variant)',
-            }}>
+            <p className="label-md mb-2 text-[var(--on-surface-variant)]">
               Filter by genre
             </p>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-              gap: 'var(--spacing-2)',
-            }}>
+            <div className="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(120px,1fr))]">
               {genres.map((genre) => (
                 <button
                   key={genre.id}
                   onClick={() => handleGenreSelect(genre)}
-                  style={{
-                    padding: 'var(--spacing-2) var(--spacing-3)',
-                    borderRadius: 'var(--radius-lg)',
-                    background: selectedGenre?.id === genre.id
-                      ? 'rgba(0, 210, 253, 0.15)'
-                      : 'var(--surface-container)',
-                    border: selectedGenre?.id === genre.id
-                      ? '1px solid rgba(0, 210, 253, 0.3)'
-                      : '1px solid rgba(73, 72, 71, 0.2)',
-                    color: selectedGenre?.id === genre.id
-                      ? 'var(--primary)'
-                      : 'var(--on-surface)',
-                    cursor: 'pointer',
-                    fontSize: '0.85rem',
-                    fontWeight: selectedGenre?.id === genre.id ? 600 : 400,
-                    transition: 'all var(--transition-smooth)',
-                    textAlign: 'center',
-                  }}
+                  className={`rounded-[var(--radius-lg)] px-3 py-2 text-center text-[0.85rem] transition ${selectedGenre?.id === genre.id ? 'border border-[rgba(0,210,253,0.3)] bg-[rgba(0,210,253,0.15)] font-semibold text-[var(--primary)]' : 'border border-[rgba(73,72,71,0.2)] bg-[var(--surface-container)] text-[var(--on-surface)]'}`}
                 >
                   {genre.name}
                 </button>
@@ -321,13 +246,7 @@ export default function AllMoviesPage() {
 
       {/* Active Filters Display */}
       {(selectedGenre || searchQuery) && (
-        <div style={{
-          marginBottom: 'var(--spacing-4)',
-          padding: 'var(--spacing-3) var(--spacing-4)',
-          background: 'rgba(159, 255, 136, 0.1)',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid rgba(159, 255, 136, 0.2)',
-        }}>
+        <div className="mb-4 rounded-[var(--radius-lg)] border border-[rgba(159,255,136,0.2)] bg-[rgba(159,255,136,0.1)] px-4 py-3">
           <p className="label-md">
             Active Filters:{' '}
             {searchQuery && <span>Search: <strong>"{searchQuery}"</strong></span>}
@@ -338,14 +257,7 @@ export default function AllMoviesPage() {
                   setSelectedGenre(null);
                   setSearchQuery('');
                 }}
-                style={{
-                  marginLeft: 'var(--spacing-2)',
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--primary)',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                }}
+                className="ml-2 border-none bg-transparent text-[var(--primary)] underline"
               >
                 Clear
               </button>
@@ -369,33 +281,21 @@ export default function AllMoviesPage() {
 
       {/* Load More Button */}
       {hasMore && filteredMovies.length > 0 && (
-        <div style={{
-          marginTop: 'var(--spacing-10)',
-          textAlign: 'center',
-        }}>
+        <div className="mt-10 text-center">
           <button
             onClick={handleLoadMore}
             disabled={loading}
-            className="btn btn-primary"
-            style={{
-              opacity: loading ? 0.6 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
+            className={`btn btn-primary ${loading ? 'cursor-not-allowed opacity-60' : ''}`}
           >
-            {loading ? '⏳ Loading...' : '📥 Load More'}
+            {loading ? 'Loading...' : 'Load More'}
           </button>
         </div>
       )}
 
       {/* End of Results */}
       {!hasMore && filteredMovies.length > 0 && (
-        <div style={{
-          marginTop: 'var(--spacing-10)',
-          textAlign: 'center',
-          color: 'var(--on-surface-variant)',
-          paddingBottom: 'var(--spacing-10)',
-        }}>
-          <p className="body-md">✨ End of results</p>
+        <div className="mt-10 pb-10 text-center text-[var(--on-surface-variant)]">
+          <p className="body-md">End of results</p>
         </div>
       )}
     </div>

@@ -25,43 +25,21 @@ export default function ChatBotWidget() {
   if (!isAuthenticated) return null;
 
   return (
-    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
+    <div className="fixed bottom-4 right-4 z-[9999] sm:bottom-6 sm:right-6">
       {/* Chat Window */}
       {isOpen && (
-        <div style={{ marginBottom: 12 }}>
+        <div className="mb-3">
           <ChatWindow onClose={() => setIsOpen(false)} />
         </div>
       )}
 
       {/* Floating Action Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="flex justify-end">
         <button
           onClick={handleToggle}
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: '50%',
-            border: 'none',
-            background: 'linear-gradient(135deg, var(--primary, #6366f1), var(--primary-dark, #4f46e5))',
-            color: '#fff',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            boxShadow: '0 6px 24px rgba(99, 102, 241, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.3s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.08)';
-            e.currentTarget.style.boxShadow = '0 8px 30px rgba(99, 102, 241, 0.55)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 6px 24px rgba(99, 102, 241, 0.4)';
-          }}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary,#6366f1),#4f46e5)] text-2xl text-white shadow-[0_6px_24px_rgba(99,102,241,0.4)] transition duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(99,102,241,0.55)]"
         >
-          {isOpen ? '✕' : '💬'}
+          {isOpen ? '✕' : 'Chat'}
         </button>
       </div>
     </div>

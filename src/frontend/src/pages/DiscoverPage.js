@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import MovieRow from '../components/movie/MovieRow';
 import movieApi from '../api/movieApi';
 
-const GENRE_ICONS = {
-  'Action': '💥', 'Comedy': '😄', 'Drama': '🎭', 'Horror': '👻',
-  'Romance': '❤️', 'Sci-Fi': '🚀', 'Thriller': '🔪', 'Animation': '✨',
-  'Documentary': '📹', 'Fantasy': '🧙', 'Crime': '🕵️', 'Adventure': '🗺️',
-};
+const GENRE_ACCENTS = [
+  'border-[rgba(159,255,136,0.2)] bg-[rgba(159,255,136,0.08)] text-[var(--primary)]',
+  'border-[rgba(0,210,253,0.2)] bg-[rgba(0,210,253,0.08)] text-[var(--secondary)]',
+  'border-[rgba(172,137,255,0.2)] bg-[rgba(172,137,255,0.08)] text-[var(--tertiary)]',
+  'border-[rgba(255,255,255,0.12)] bg-white/5 text-white/80',
+];
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
@@ -61,22 +62,17 @@ export default function DiscoverPage() {
 
   return (
     <div className="fade-in">
-      <div style={{ marginBottom: 'var(--spacing-8)' }}>
-        <h1 className="display-md" style={{ marginBottom: 'var(--spacing-2)' }}>Discover</h1>
+      <div className="mb-8">
+        <h1 className="display-md mb-2">Discover</h1>
         <p className="body-lg">Explore films by genre and find your next favorite</p>
       </div>
 
       {/* Genre grid selector */}
       {!genresLoading && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-          gap: 'var(--spacing-3)',
-          marginBottom: 'var(--spacing-10)',
-        }}>
+        <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {genres.map((g, i) => {
             const isSelected = selectedGenre?.id === g.id;
-            const icon = GENRE_ICONS[g.name] || '🎬';
+            const accentClass = GENRE_ACCENTS[i % GENRE_ACCENTS.length];
             return (
               <button
                 key={g.id || g.name || i}
@@ -85,27 +81,12 @@ export default function DiscoverPage() {
                   if (selectedGenre?.id === g.id) return;
                   setSelectedGenre(g);
                 }}
-                style={{
-                  background: isSelected
-                    ? 'linear-gradient(135deg, rgba(159,255,136,0.15), rgba(0,210,253,0.1))'
-                    : 'var(--surface-container)',
-                  border: isSelected
-                    ? '1px solid rgba(159,255,136,0.3)'
-                    : '1px solid rgba(73,72,71,0.2)',
-                  borderRadius: 'var(--radius-xl)',
-                  padding: 'var(--spacing-5)',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all var(--transition-smooth)',
-                  boxShadow: isSelected ? '0 0 16px rgba(159,255,136,0.1)' : 'none',
-                  transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-                }}
+                className={`rounded-[var(--radius-xl)] border p-5 text-center transition ${isSelected ? 'scale-[1.02] border-[rgba(159,255,136,0.3)] bg-[linear-gradient(135deg,rgba(159,255,136,0.15),rgba(0,210,253,0.1))] shadow-[0_0_16px_rgba(159,255,136,0.1)]' : 'border-[rgba(73,72,71,0.2)] bg-[var(--surface-container)] hover:border-white/20 hover:bg-[var(--surface-container-high)]'}`}
               >
-                <div style={{ fontSize: '2rem', marginBottom: 'var(--spacing-2)' }}>{icon}</div>
-                <div style={{
-                  fontSize: '0.875rem', fontWeight: 600,
-                  color: isSelected ? 'var(--primary)' : 'var(--on-surface)',
-                }}>
+                <div className={`mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold ${isSelected ? 'border-[rgba(159,255,136,0.3)] bg-[rgba(159,255,136,0.12)] text-[var(--primary)]' : accentClass}`}>
+                  {(typeof g === 'string' ? g : g.name).slice(0, 2).toUpperCase()}
+                </div>
+                <div className={`text-sm font-semibold ${isSelected ? 'text-[var(--primary)]' : 'text-[var(--on-surface)]'}`}>
                   {typeof g === 'string' ? g : g.name}
                 </div>
               </button>
@@ -116,7 +97,7 @@ export default function DiscoverPage() {
 
       {selectedGenre && (
         <MovieRow
-          title={`${GENRE_ICONS[selectedGenre.name] || '🎬'} ${selectedGenre.name} Films`}
+          title={`${selectedGenre.name} Films`}
           movies={movies}
           loading={loading}
           cardWidth={180}

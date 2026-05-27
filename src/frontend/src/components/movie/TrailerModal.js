@@ -33,12 +33,14 @@ export default function TrailerModal({ trailerId, title, onClose }) {
       <div className="trailer-modal-overlay" ref={overlayRef} onClick={handleOverlayClick}>
         <div className="trailer-modal">
           <div className="trailer-modal__header">
-            <span className="trailer-modal__title">🎬 {title}</span>
+            <span className="trailer-modal__title">{title}</span>
             <button className="trailer-modal__close btn btn-icon" onClick={onClose} aria-label="Close">✕</button>
           </div>
           <div className="trailer-modal__no-trailer">
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎬</div>
-            <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.125rem' }}>
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-2xl text-[var(--primary)]">
+              ▶
+            </div>
+            <p className="text-center text-lg text-[var(--on-surface-variant)]">
               Trailer not available for this movie.
             </p>
           </div>
@@ -61,13 +63,8 @@ export default function TrailerModal({ trailerId, title, onClose }) {
       <div className="trailer-modal slide-up">
         {/* Header */}
         <div className="trailer-modal__header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 32, height: 32, borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-              color: '#000', fontSize: '0.875rem', fontWeight: 700,
-            }}>▶</span>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--secondary))] text-sm font-bold text-black">▶</span>
             <span className="trailer-modal__title">{title}</span>
           </div>
           <button
@@ -92,12 +89,8 @@ export default function TrailerModal({ trailerId, title, onClose }) {
 
         {/* Footer hint */}
         <div className="trailer-modal__footer">
-          <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem' }}>
-            Press <kbd style={{
-              background: 'var(--surface-container-high)',
-              border: '1px solid var(--outline-variant)',
-              borderRadius: 4, padding: '1px 6px', fontSize: '0.7rem',
-            }}>Esc</kbd> or click outside to close
+          <span className="text-xs text-[var(--on-surface-variant)]">
+            Press <kbd className="rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-1.5 py-px text-[0.7rem]">Esc</kbd> or click outside to close
           </span>
         </div>
       </div>

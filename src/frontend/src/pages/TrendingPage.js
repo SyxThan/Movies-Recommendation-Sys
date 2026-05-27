@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MovieRow from '../components/movie/MovieRow';
 import movieApi from '../api/movieApi';
+import { SkeletonGrid } from '../components/ui/LoadingSkeleton';
 
 const DEMO_TRENDING = [
   { id: 1, title: 'Interstellar', vote_average: 8.6, release_year: 2014 },
@@ -40,29 +41,21 @@ export default function TrendingPage() {
 
   return (
     <div className="fade-in">
-      <div className="top-bar">
+      <div className="top-bar flex-col items-start gap-4 lg:flex-row lg:items-center">
         <div>
-          <h1 className="display-md" style={{ marginBottom: 'var(--spacing-1)' }}>
-            🔥 Trending
+          <h1 className="display-md mb-1">
+            Trending
           </h1>
           <p className="body-md">What the world is watching right now</p>
         </div>
         {/* Time period filter */}
-        <div style={{ display: 'flex', background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)', padding: 4 }}>
+        <div className="flex w-full flex-wrap rounded-[var(--radius-xl)] bg-[var(--surface-container)] p-1 sm:w-auto">
           {TIME_FILTERS.map((f) => (
             <button
               key={f.value}
               id={`trending-filter-${f.value}`}
               onClick={() => setPeriod(f.value)}
-              style={{
-                padding: 'var(--spacing-2) var(--spacing-4)',
-                borderRadius: 'calc(var(--radius-xl) - 4px)',
-                background: period === f.value ? 'var(--surface-container-highest)' : 'transparent',
-                color: period === f.value ? 'var(--on-surface)' : 'var(--on-surface-variant)',
-                fontWeight: period === f.value ? 600 : 400,
-                border: 'none', cursor: 'pointer', fontSize: '0.875rem',
-                transition: 'all var(--transition-fast)',
-              }}
+              className={`flex-1 rounded-[calc(var(--radius-xl)-4px)] px-4 py-2 text-sm transition sm:flex-none ${period === f.value ? 'bg-[var(--surface-container-highest)] font-semibold text-[var(--on-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.2)]' : 'text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]'}`}
             >
               {f.label}
             </button>
@@ -71,61 +64,31 @@ export default function TrendingPage() {
       </div>
 
       {/* Trending rank list */}
-      <div style={{ marginTop: 'var(--spacing-8)' }}>
+      <div className="mt-8">
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 'var(--spacing-5)' }}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i}>
-                <div className="skeleton" style={{ aspectRatio: '2/3', borderRadius: 'var(--radius-lg)' }} />
-                <div className="skeleton" style={{ height: 14, marginTop: 10, width: '80%' }} />
-              </div>
-            ))}
-          </div>
+          <SkeletonGrid count={12} />
         ) : (
           <>
             {/* Top 3 spotlight */}
             {movies.slice(0, 3).length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--spacing-5)', marginBottom: 'var(--spacing-10)' }}>
+              <div className="mb-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {movies.slice(0, 3).map((movie, i) => (
                   <div
                     key={movie.id}
-                    style={{
-                      background: 'var(--surface-container)',
-                      borderRadius: 'var(--radius-xl)',
-                      padding: 'var(--spacing-5)',
-                      border: i === 0
-                        ? '1px solid rgba(159,255,136,0.2)'
-                        : i === 1
-                        ? '1px solid rgba(0,210,253,0.15)'
-                        : '1px solid rgba(73,72,71,0.2)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
+                    className={`relative overflow-hidden rounded-[var(--radius-xl)] bg-[var(--surface-container)] p-5 ${i === 0 ? 'border border-[rgba(159,255,136,0.2)]' : i === 1 ? 'border border-[rgba(0,210,253,0.15)]' : 'border border-[rgba(73,72,71,0.2)]'}`}
                   >
-                    <div style={{
-                      fontSize: '4rem', fontFamily: 'var(--font-display)', fontWeight: 800,
-                      color: i === 0 ? 'rgba(159,255,136,0.12)' : i === 1 ? 'rgba(0,210,253,0.1)' : 'rgba(255,255,255,0.05)',
-                      position: 'absolute', top: -8, right: 12, lineHeight: 1,
-                    }}>
+                    <div className={`absolute right-3 top-[-8px] font-display text-[4rem] font-extrabold leading-none ${i === 0 ? 'text-[rgba(159,255,136,0.12)]' : i === 1 ? 'text-[rgba(0,210,253,0.1)]' : 'text-[rgba(255,255,255,0.05)]'}`}>
                       #{i + 1}
                     </div>
-                    <div style={{ display: 'flex', gap: 'var(--spacing-4)', alignItems: 'flex-start' }}>
-                      <div style={{
-                        width: 56, height: 56, borderRadius: 'var(--radius-lg)',
-                        background: `hsl(${i * 120}, 40%, 20%)`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.5rem', flexShrink: 0,
-                      }}>🎬</div>
-                      <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <div style={{
-                          fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 700,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>{movie.title}</div>
-                        <div style={{ color: 'var(--on-surface-variant)', fontSize: '0.8125rem', marginTop: 4 }}>
+                    <div className="flex items-start gap-4">
+                      <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border border-white/10 text-base font-bold ${i === 0 ? 'bg-[rgba(159,255,136,0.12)] text-[var(--primary)]' : i === 1 ? 'bg-[rgba(0,210,253,0.12)] text-[var(--secondary)]' : 'bg-white/5 text-white/70'}`}>{i + 1}</div>
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <div className="truncate font-display text-base font-bold">{movie.title}</div>
+                        <div className="mt-1 text-[0.8125rem] text-[var(--on-surface-variant)]">
                           {movie.release_year}
                         </div>
                         {movie.vote_average > 0 && (
-                          <div style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.875rem', marginTop: 4 }}>
+                          <div className="mt-1 text-sm font-semibold text-[var(--primary)]">
                             ★ {Number(movie.vote_average).toFixed(1)}
                           </div>
                         )}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import movieApi from '../../api/movieApi';
 import { useAuth } from '../../context/AuthContext';
 import TrailerModal from './TrailerModal';
+import LazyImage from '../ui/LazyImage';
 
 const BACKDROP_BASE = 'https://image.tmdb.org/t/p/w1280';
 
@@ -74,6 +75,11 @@ export default function HeroBanner({ movies }) {
 
   const movie = displayMovies[current];
   const backdropUrl = movie.backdrop_path ? `${BACKDROP_BASE}${movie.backdrop_path}` : null;
+  const fallbackBackdropClass = current === 0
+    ? 'bg-[linear-gradient(135deg,#0a0a1e_0%,#1a1a3e_50%,#0a0a1e_100%)]'
+    : current === 1
+      ? 'bg-[linear-gradient(135deg,#1a0a00_0%,#3d1f00_50%,#1a0a00_100%)]'
+      : 'bg-[linear-gradient(135deg,#1a1a0a_0%,#2a2a1a_50%,#1a1a0a_100%)]';
 
   const handleWatchNow = async (e) => {
     e.preventDefault();
@@ -108,56 +114,44 @@ export default function HeroBanner({ movies }) {
         />
       )}
 
-      <div style={{ position: 'relative', borderRadius: 'var(--radius-xl)', overflow: 'hidden', height: 480, marginBottom: 'var(--spacing-10)' }}>
+      <div className="relative mb-10 h-[420px] overflow-hidden rounded-[var(--radius-xl)] sm:h-[480px]">
         {/* Background */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: movie.backdropColor || 'var(--surface-container)',
-          transition: 'all 0.6s ease',
-        }}>
+        <div className={`absolute inset-0 transition-all duration-700 ${backdropUrl ? '' : fallbackBackdropClass}`}>
           {backdropUrl && (
-            <img src={backdropUrl} alt={movie.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
-          )}
-          {!backdropUrl && movie.emoji && (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12rem', opacity: 0.08 }}>
-              {movie.emoji}
-            </div>
+            <LazyImage src={backdropUrl} alt={movie.title} className="opacity-40" wrapperClassName="h-full w-full" />
           )}
         </div>
 
         {/* Gradient overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to right, rgba(14,14,14,0.97) 0%, rgba(14,14,14,0.7) 45%, rgba(14,14,14,0.1) 100%), linear-gradient(to top, rgba(14,14,14,0.9) 0%, transparent 60%)',
-        }} />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(14,14,14,0.97)_0%,rgba(14,14,14,0.7)_45%,rgba(14,14,14,0.1)_100%),linear-gradient(to_top,rgba(14,14,14,0.9)_0%,transparent_60%)]" />
 
         {/* Content */}
-        <div className="hero-banner__content" style={{ opacity: animating ? 0 : 1, transition: 'opacity 0.3s ease' }}>
+        <div className={`hero-banner__content transition-opacity duration-300 ${animating ? 'opacity-0' : 'opacity-100'}`}>
           {/* Genre chips */}
-          <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginBottom: 'var(--spacing-4)', flexWrap: 'wrap' }}>
+          <div className="mb-4 flex flex-wrap gap-2">
             {(movie.genres || []).slice(0, 3).map((g, i) => (
-              <span key={g.id || g.name || i} className="chip chip-default" style={{ fontSize: '0.6875rem' }}>
+              <span key={g.id || g.name || i} className="chip chip-default text-[0.6875rem]">
                 {typeof g === 'string' ? g : (g.name || '')}
               </span>
             ))}
           </div>
 
           {/* Title */}
-          <h1 className="display-lg" style={{ color: '#fff', marginBottom: 'var(--spacing-4)', maxWidth: 600 }}>
+          <h1 className="display-lg mb-4 max-w-[37.5rem] text-white">
             {movie.title}
           </h1>
 
           {/* Overview */}
-          <p className="body-lg" style={{ maxWidth: 520, marginBottom: 'var(--spacing-6)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p className="body-lg mb-6 max-w-[32.5rem] overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
             {movie.overview}
           </p>
 
           {/* Rating + Year */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-4)', marginBottom: 'var(--spacing-6)' }}>
+          <div className="mb-6 flex flex-wrap items-center gap-4">
             {movie.vote_average > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
-                <span style={{ color: 'var(--primary)', fontSize: '1.25rem' }}>★</span>
-                <span style={{ fontWeight: 700, fontSize: '1.125rem', color: '#fff' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-xl text-[var(--primary)]">★</span>
+                <span className="text-lg font-bold text-white">
                   {Number(movie.vote_average).toFixed(1)}
                 </span>
                 <span className="body-sm">/10</span>
@@ -169,60 +163,39 @@ export default function HeroBanner({ movies }) {
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: 'var(--spacing-3)' }}>
+          <div className="flex flex-col gap-3 sm:flex-row">
             {/* ▶ Watch Now — opens trailer modal */}
             <button
               onClick={handleWatchNow}
               disabled={watchLoading}
-              className="btn btn-primary btn-lg"
-              style={{ opacity: watchLoading ? 0.75 : 1, cursor: watchLoading ? 'wait' : 'pointer' }}
+              className={`btn btn-primary btn-lg justify-center ${watchLoading ? 'cursor-wait opacity-75' : ''}`}
             >
               {watchLoading ? (
                 <>
-                  <span style={{
-                    display: 'inline-block', width: 16, height: 16,
-                    border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#000',
-                    borderRadius: '50%', animation: 'spin 0.7s linear infinite',
-                  }} />
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
                   Loading...
                 </>
-              ) : '▶ Watch Now'}
+              ) : 'Watch Now'}
             </button>
 
             {/* ℹ More Info — goes to detail page */}
             <Link to={`/movie/${movie.id}`} className="btn btn-glass btn-lg">
-              ℹ More Info
+              More Info
             </Link>
           </div>
         </div>
 
         {/* Dots navigation */}
-        <div style={{
-          position: 'absolute', bottom: 'var(--spacing-6)', right: 'var(--spacing-8)',
-          display: 'flex', gap: 'var(--spacing-2)',
-        }}>
+        <div className="absolute bottom-6 right-4 flex gap-2 sm:right-8">
           {displayMovies.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
-              style={{
-                width: i === current ? 24 : 8,
-                height: 8,
-                borderRadius: 'var(--radius-full)',
-                background: i === current ? 'var(--primary)' : 'rgba(255,255,255,0.3)',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                padding: 0,
-                boxShadow: i === current ? '0 0 8px var(--primary)' : 'none',
-              }}
+              className={`h-2 rounded-full p-0 transition-all duration-300 ${i === current ? 'w-6 bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]' : 'w-2 bg-white/30'}`}
             />
           ))}
         </div>
       </div>
-
-      {/* Spinner keyframe */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </>
   );
 }

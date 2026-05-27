@@ -24,9 +24,9 @@ export default function Sidebar() {
     <nav className="nav-sidebar">
       {/* Logo */}
       <div className="nav-logo">
-        <span style={{ fontSize: '1.5rem' }}>◈</span>
+        <span className="text-2xl">◈</span>
         <div>
-          <div className="logo-text" style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--primary)' }}>
+          <div className="logo-text font-display font-extrabold text-[var(--primary)]">
             The Curator
           </div>
           <span>Premium Screening</span>
@@ -34,7 +34,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav Items */}
-      <div style={{ flex: 1 }}>
+      <div className="flex-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -42,40 +42,34 @@ export default function Sidebar() {
             end={item.exact}
             className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
           >
-            <span className="nav-icon" style={{ fontSize: '1.2rem' }}>{item.icon}</span>
+            <span className="nav-icon text-[1.2rem]">{item.icon}</span>
             <span>{item.label}</span>
           </NavLink>
         ))}
       </div>
 
       {/* User Profile */}
-      <div style={{ marginTop: 'auto' }}>
+      <div className="mt-auto">
         <div className="divider" />
         {user ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+          <div className="flex flex-col gap-2">
             <NavLink
               to="/profile"
               className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
             >
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.75rem', fontWeight: 700, color: '#000', flexShrink: 0
-              }}>
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--secondary))] text-xs font-bold text-black">
                 {(user.full_name?.[0] || user.email?.[0] || 'U').toUpperCase()}
               </div>
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div className="overflow-hidden">
+                <div className="truncate whitespace-nowrap text-sm font-semibold text-[var(--on-surface)]">
                   {user.full_name || user.email?.split('@')[0]}
                 </div>
-                <div style={{ fontSize: '0.6875rem', color: 'var(--on-surface-variant)' }}>Cinema Curator</div>
+                <div className="text-[0.6875rem] text-[var(--on-surface-variant)]">Cinema Curator</div>
               </div>
             </NavLink>
             <button
               onClick={handleLogout}
-              className="nav-item btn-ghost"
-              style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left' }}
+              className="nav-item btn-ghost w-full border-none bg-transparent text-left"
             >
               <span className="nav-icon">⏻</span>
               <span>Logout</span>

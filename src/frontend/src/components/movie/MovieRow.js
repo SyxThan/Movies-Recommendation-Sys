@@ -1,5 +1,22 @@
 import React from 'react';
 import MovieCard from './MovieCard';
+import EmptyState from '../ui/EmptyState';
+import { SkeletonRow } from '../ui/LoadingSkeleton';
+
+function getBadgeClass(label) {
+  switch (label) {
+    case 'AI Hybrid':
+      return 'border border-[rgba(159,255,136,0.3)] bg-[rgba(159,255,136,0.14)] text-[var(--primary)]';
+    case 'Hybrid':
+      return 'border border-[rgba(0,210,253,0.3)] bg-[rgba(0,210,253,0.14)] text-[var(--secondary)]';
+    case 'From Watched':
+      return 'border border-[rgba(255,180,80,0.3)] bg-[rgba(255,180,80,0.14)] text-[#ffb450]';
+    case 'Curated':
+      return 'border border-[rgba(180,160,255,0.3)] bg-[rgba(180,160,255,0.14)] text-[#b4a0ff]';
+    default:
+      return 'border border-white/10 bg-white/5 text-[var(--on-surface-variant)]';
+  }
+}
 
 export default function MovieRow({
   title,
@@ -11,27 +28,18 @@ export default function MovieRow({
   onSeeAll,
   emptyMessage = 'No movies found.',
 }) {
-  const skeletons = Array.from({ length: 6 });
+  const compact = cardWidth < 180;
+  const itemWidthClass = compact ? 'w-[150px]' : 'w-[180px]';
 
   return (
-    <div style={{ marginBottom: 'var(--spacing-10)' }}>
-      <div className="section-header">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)' }}>
-            <h2 className="section-title" style={{ margin: 0 }}>{title}</h2>
+    <div className="mb-10">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="section-title m-0">{title}</h2>
             {badge && (
               <span
-                style={{
-                  fontSize: '0.6875rem',
-                  fontWeight: 600,
-                  padding: '3px 10px',
-                  borderRadius: 999,
-                  background: badge.bg || 'rgba(159,255,136,0.12)',
-                  color: badge.color || 'var(--primary)',
-                  border: `1px solid ${badge.border || 'rgba(159,255,136,0.25)'}`,
-                  letterSpacing: '0.03em',
-                  textTransform: 'uppercase',
-                }}
+                className={`rounded-full px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-[0.03em] ${getBadgeClass(badge.label)}`}
                 title={badge.tooltip}
               >
                 {badge.label}
@@ -39,19 +47,14 @@ export default function MovieRow({
             )}
           </div>
           {subtitle && (
-            <p style={{
-              margin: 0,
-              fontSize: '0.8125rem',
-              color: 'var(--on-surface-variant)',
-            }}>
+            <p className="m-0 text-[0.8125rem] text-[var(--on-surface-variant)]">
               {subtitle}
             </p>
           )}
         </div>
         {movies.length > 6 && onSeeAll && (
           <button
-            className="btn btn-ghost btn-sm"
-            style={{ color: 'var(--secondary)', fontSize: '0.8125rem' }}
+            className="btn btn-ghost btn-sm text-[0.8125rem] text-[var(--secondary)]"
             onClick={onSeeAll}
           >
             See all →
@@ -60,22 +63,13 @@ export default function MovieRow({
       </div>
 
       <div className="scroll-row">
-        {loading
-          ? skeletons.map((_, i) => (
-              <div key={i} style={{ width: cardWidth, flexShrink: 0 }}>
-                <div className="skeleton" style={{ width: cardWidth, aspectRatio: '2/3', borderRadius: 'var(--radius-lg)' }} />
-                <div className="skeleton" style={{ height: 14, marginTop: 10, borderRadius: 4, width: '80%' }} />
-                <div className="skeleton" style={{ height: 12, marginTop: 6, borderRadius: 4, width: '50%' }} />
-              </div>
-            ))
-          : movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} width={cardWidth} />
-            ))
-        }
-        {!loading && movies.length === 0 && (
-          <div style={{ color: 'var(--on-surface-variant)', fontSize: '0.875rem', padding: 'var(--spacing-8)' }}>
-            {emptyMessage}
+        {loading ? <SkeletonRow count={6} compact={compact} /> : movies.map((movie) => (
+          <div key={movie.id} className={`shrink-0 ${itemWidthClass}`}>
+            <MovieCard movie={movie} width={cardWidth} />
           </div>
+        ))}
+        {!loading && movies.length === 0 && (
+          <EmptyState compact title="Nothing here yet" description={emptyMessage} />
         )}
       </div>
     </div>

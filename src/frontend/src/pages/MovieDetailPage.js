@@ -4,6 +4,7 @@ import movieApi from '../api/movieApi';
 import watchlistApi from '../api/watchlistApi';
 import { useAuth } from '../context/AuthContext';
 import TrailerModal from '../components/movie/TrailerModal';
+import LazyImage from '../components/ui/LazyImage';
 
 const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE = 'https://image.tmdb.org/t/p/w1280';
@@ -101,9 +102,9 @@ export default function MovieDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ width: '100%', padding: 'var(--spacing-8)' }}>
-        <div className="skeleton" style={{ height: 400, borderRadius: 'var(--radius-xl)', marginBottom: 'var(--spacing-8)' }} />
-        <div className="skeleton" style={{ height: 200, borderRadius: 'var(--radius-xl)' }} />
+      <div className="w-full px-4 py-8 sm:px-8">
+        <div className="mb-8 h-[400px] animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-container-high)]" />
+        <div className="h-[200px] animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-container-high)]" />
       </div>
     );
   }
@@ -115,7 +116,7 @@ export default function MovieDetailPage() {
   const hasTrailer = Boolean(movie.youtube_trailer_id);
 
   return (
-    <div className="fade-in" style={{ width: '100%', maxWidth: 1400, margin: '0 auto' }}>
+    <div className="fade-in mx-auto w-full max-w-[1400px]">
       {trailerOpen && (
         <TrailerModal
           trailerId={trailerId}
@@ -125,40 +126,36 @@ export default function MovieDetailPage() {
       )}
 
       {/* Hero */}
-      <div style={{
-        position: 'relative', borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-        minHeight: 450, marginBottom: 'var(--spacing-10)', display: 'flex', alignItems: 'flex-end',
-        boxShadow: '0 20px 80px rgba(0,0,0,0.5)',
-      }}>
-        <div style={{ position: 'absolute', inset: 0, background: backdropUrl ? 'none' : 'linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%)' }}>
-          {backdropUrl && <img src={backdropUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.35, filter: 'blur(1px)' }} />}
+      <div className="relative mb-10 flex min-h-[450px] items-end overflow-hidden rounded-[var(--radius-xl)] shadow-[0_20px_80px_rgba(0,0,0,0.5)]">
+        <div className={`absolute inset-0 ${backdropUrl ? '' : 'bg-[linear-gradient(135deg,#0a0a1e_0%,#1a1a3e_100%)]'}`}>
+          {backdropUrl && <LazyImage src={backdropUrl} alt="" className="opacity-40" wrapperClassName="h-full w-full" />}
         </div>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(14,14,14,1) 0%, rgba(14,14,14,0.8) 40%, rgba(14,14,14,0) 100%), linear-gradient(to top, rgba(14,14,14,1) 0%, transparent 50%)' }} />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(14,14,14,1)_0%,rgba(14,14,14,0.8)_40%,rgba(14,14,14,0)_100%),linear-gradient(to_top,rgba(14,14,14,1)_0%,transparent_50%)]" />
         
-        <button onClick={() => navigate(-1)} className="btn btn-glass btn-sm" style={{ position: 'absolute', top: 'var(--spacing-6)', left: 'var(--spacing-6)', zIndex: 10 }}>← Back</button>
+        <button onClick={() => navigate(-1)} className="btn btn-glass btn-sm absolute left-4 top-4 z-10 sm:left-6 sm:top-6">← Back</button>
 
-        <div style={{ position: 'relative', padding: 'var(--spacing-10)', width: '100%' }}>
-          <div style={{ display: 'flex', gap: 'var(--spacing-8)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <div style={{ width: 220, flexShrink: 0, borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              {posterUrl ? <img src={posterUrl} alt={movie.title} style={{ width: '100%', display: 'block' }} /> : <div style={{ aspectRatio: '2/3', background: 'var(--surface-container-high)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem' }}>🎬</div>}
+        <div className="relative w-full p-6 sm:p-10">
+          <div className="flex flex-wrap items-end gap-6 sm:gap-8">
+            <div className="w-[180px] shrink-0 overflow-hidden rounded-[var(--radius-lg)] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] sm:w-[220px]">
+              {posterUrl ? <LazyImage src={posterUrl} alt={movie.title} wrapperClassName="w-full" /> : <div className="flex aspect-[2/3] items-center justify-center bg-[var(--surface-container-high)] text-4xl font-bold text-white/40">MV</div>}
             </div>
-            <div style={{ flex: '1 1 400px' }}>
-              <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginBottom: 'var(--spacing-2)' }}>
+            <div className="min-w-[280px] flex-[1_1_400px]">
+              <div className="mb-2 flex flex-wrap gap-2">
                 {movie.release_date && <span className="chip chip-active">{new Date(movie.release_date).getFullYear()}</span>}
-                <span className="chip chip-default">★ {Number(movie.vote_average || 0).toFixed(1)}</span>
+                <span className="chip chip-default">Rated {Number(movie.vote_average || 0).toFixed(1)}</span>
               </div>
-              <h1 className="display-md" style={{ color: '#fff', marginBottom: 'var(--spacing-4)' }}>{movie.title}</h1>
-              <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginBottom: 'var(--spacing-8)', flexWrap: 'wrap' }}>
+              <h1 className="display-md mb-4 text-white">{movie.title}</h1>
+              <div className="mb-8 flex flex-wrap gap-2">
                 {(movie.genres || []).map((g, i) => (
-                  <span key={g.id || i} className="chip chip-default" style={{ background: 'rgba(255,255,255,0.05)', fontSize: '0.75rem' }}>{typeof g === 'string' ? g : (g.name || '')}</span>
+                  <span key={g.id || i} className="chip chip-default bg-white/5 text-xs">{typeof g === 'string' ? g : (g.name || '')}</span>
                 ))}
               </div>
-              <div style={{ display: 'flex', gap: 'var(--spacing-4)', flexWrap: 'wrap' }}>
-                <button onClick={handleWatchNow} disabled={watchLoading} className="btn btn-primary btn-lg glow-primary" style={{ minWidth: 200 }}>
-                  {watchLoading ? 'Loading...' : <>▶ Watch Now{!hasTrailer ? ' (No Trailer)' : ''}</>}
+              <div className="flex flex-col flex-wrap gap-4 sm:flex-row">
+                <button onClick={handleWatchNow} disabled={watchLoading} className="btn btn-primary btn-lg glow-primary min-w-[200px] justify-center">
+                  {watchLoading ? 'Loading...' : `Watch Now${!hasTrailer ? ' (No Trailer)' : ''}`}
                 </button>
                 <button onClick={handleWatchlistToggle} className={`btn btn-lg ${inWatchlist ? 'btn-secondary' : 'btn-glass'}`}>
-                  {inWatchlist ? '♥ In Watchlist' : '♡ Add to Watchlist'}
+                  {inWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                 </button>
               </div>
             </div>
@@ -166,24 +163,24 @@ export default function MovieDetailPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 'var(--spacing-12)' }}>
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-12">
         <div>
-          <section style={{ marginBottom: 'var(--spacing-10)' }}>
+          <section className="mb-10">
             <h2 className="section-title">Synopsis</h2>
-            <p className="body-lg" style={{ color: 'var(--on-surface)', lineHeight: 1.8 }}>{movie.overview || "No synopsis available."}</p>
+            <p className="body-lg text-[var(--on-surface)] leading-[1.8]">{movie.overview || "No synopsis available."}</p>
           </section>
         </div>
         <div>
           {similar.length > 0 && (
             <>
-              <h3 className="title-sm" style={{ marginBottom: 'var(--spacing-4)', color: 'var(--on-surface-variant)' }}>SIMILAR TITLES</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
+              <h3 className="title-sm mb-4 text-[var(--on-surface-variant)]">SIMILAR TITLES</h3>
+              <div className="flex flex-col gap-3">
                 {similar.map(m => (
-                  <div key={m.id} onClick={() => navigate(`/movie/${m.id}`)} style={{ cursor: 'pointer', display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center', padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', transition: 'background 0.2s' }} className="hover-bg">
-                    <div style={{ width: 48, height: 72, background: 'var(--surface-container-high)', borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}>
-                      {m.poster_path && <img src={`${POSTER_BASE}${m.poster_path}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                  <div key={m.id} onClick={() => navigate(`/movie/${m.id}`)} className="flex cursor-pointer items-center gap-3 rounded-[var(--radius-md)] p-2 transition hover:bg-white/5">
+                    <div className="h-[72px] w-12 shrink-0 overflow-hidden rounded bg-[var(--surface-container-high)]">
+                      {m.poster_path && <LazyImage src={`${POSTER_BASE}${m.poster_path}`} alt="" wrapperClassName="h-full w-full" />}
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{m.title}</div>
+                    <div className="text-[0.9rem] font-semibold">{m.title}</div>
                   </div>
                 ))}
               </div>
@@ -191,11 +188,6 @@ export default function MovieDetailPage() {
           )}
         </div>
       </div>
-
-      <style>{`
-        .hover-bg:hover { background: rgba(255,255,255,0.05); }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 }

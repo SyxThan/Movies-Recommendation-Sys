@@ -4,20 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import authApi from '../api/authApi';
 import movieApi from '../api/movieApi';
 
-const GENRE_EMOJIS = {
-  Action: '💥',
-  Adventure: '🗺️',
-  Animation: '✨',
-  Comedy: '😄',
-  Crime: '🕵️',
-  Documentary: '📹',
-  Drama: '🎭',
-  Fantasy: '🧙',
-  Horror: '👻',
-  Romance: '❤️',
-  'Sci-Fi': '🚀',
-  Thriller: '🔪',
-};
+const GENRE_ACCENTS = [
+  'border-[rgba(159,255,136,0.2)] bg-[rgba(159,255,136,0.08)] text-[var(--primary)]',
+  'border-[rgba(0,210,253,0.2)] bg-[rgba(0,210,253,0.08)] text-[var(--secondary)]',
+  'border-[rgba(172,137,255,0.2)] bg-[rgba(172,137,255,0.08)] text-[var(--tertiary)]',
+  'border-white/10 bg-white/5 text-white/80',
+];
 
 export default function OnboardingPage() {
   const { user } = useAuth();
@@ -78,33 +70,25 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', background: 'var(--background)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      position: 'relative', overflow: 'hidden', padding: 'var(--spacing-6)',
-    }}>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] p-6">
       <div className="light-leak light-leak-1" />
       <div className="light-leak light-leak-3" />
 
-      <div style={{ maxWidth: 640, width: '100%', position: 'relative', zIndex: 1 }}>
+      <div className="relative z-[1] w-full max-w-[40rem]">
         {/* Progress dots */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--spacing-2)', marginBottom: 'var(--spacing-8)' }}>
+        <div className="mb-8 flex justify-center gap-2">
           {[1, 2].map((s) => (
-            <div key={s} style={{
-              width: s === step ? 24 : 8, height: 8,
-              borderRadius: 'var(--radius-full)',
-              background: s <= step ? 'var(--primary)' : 'var(--surface-container-high)',
-              transition: 'all var(--transition-smooth)',
-              boxShadow: s === step ? '0 0 8px var(--primary)' : 'none',
-            }} />
+            <div key={s} className={`h-2 rounded-full transition-all ${s === step ? 'w-6 bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]' : s < step ? 'w-3 bg-[var(--primary)]' : 'w-2 bg-[var(--surface-container-high)]'}`} />
           ))}
         </div>
 
         {step === 1 && (
           <div className="fade-in">
-            <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-8)' }}>
-              <div style={{ fontSize: '3rem', marginBottom: 'var(--spacing-4)' }}>🎭</div>
-              <h1 className="display-md" style={{ marginBottom: 'var(--spacing-3)' }}>
+            <div className="mb-8 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-xl font-semibold text-[var(--primary)]">
+                GO
+              </div>
+              <h1 className="display-md mb-3">
                 What do you love to watch?
               </h1>
               <p className="body-lg">
@@ -112,57 +96,42 @@ export default function OnboardingPage() {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-3)', marginBottom: 'var(--spacing-8)' }}>
+            <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {genresLoading ? (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--on-surface-variant)' }}>
-                  Loading genres...
-                </div>
+                Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="h-[104px] animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-container-high)]" />
+                ))
               ) : (
-                genres.map((g) => {
+                genres.map((g, index) => {
                 const isSelected = selected.has(g.id);
-                const icon = GENRE_EMOJIS[g.name] || '🎬';
+                const accentClass = GENRE_ACCENTS[index % GENRE_ACCENTS.length];
                 return (
                   <button
                     key={g.id}
                     id={`onboard-genre-${g.id}`}
                     onClick={() => toggleGenre(g.id)}
-                    style={{
-                      background: isSelected
-                        ? 'linear-gradient(135deg, rgba(159,255,136,0.2), rgba(0,210,253,0.1))'
-                        : 'var(--surface-container)',
-                      border: isSelected ? '2px solid rgba(159,255,136,0.5)' : '2px solid transparent',
-                      borderRadius: 'var(--radius-xl)', padding: 'var(--spacing-5)',
-                      cursor: 'pointer', textAlign: 'center',
-                      transition: 'all var(--transition-smooth)',
-                      transform: isSelected ? 'scale(1.03)' : 'scale(1)',
-                      boxShadow: isSelected ? '0 0 16px rgba(159,255,136,0.15)' : 'none',
-                    }}
+                    className={`rounded-[var(--radius-xl)] p-5 text-center transition ${isSelected ? 'scale-[1.03] border-2 border-[rgba(159,255,136,0.5)] bg-[linear-gradient(135deg,rgba(159,255,136,0.2),rgba(0,210,253,0.1))] shadow-[0_0_16px_rgba(159,255,136,0.15)]' : 'border-2 border-transparent bg-[var(--surface-container)] hover:bg-[var(--surface-container-high)]'}`}
                   >
-                    <div style={{ fontSize: '2rem', marginBottom: 'var(--spacing-2)' }}>{icon}</div>
-                    <div style={{
-                      fontSize: '0.875rem', fontWeight: 600,
-                      color: isSelected ? 'var(--primary)' : 'var(--on-surface)',
-                    }}>{g.name}</div>
+                    <div className={`mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold ${isSelected ? 'border-[rgba(159,255,136,0.35)] bg-[rgba(159,255,136,0.12)] text-[var(--primary)]' : accentClass}`}>{g.name.slice(0, 2).toUpperCase()}</div>
+                    <div className={`text-sm font-semibold ${isSelected ? 'text-[var(--primary)]' : 'text-[var(--on-surface)]'}`}>{g.name}</div>
                   </button>
                 );
                 })
               )}
             </div>
 
-            <div style={{ textAlign: 'center' }}>
+            <div className="text-center">
               <button
                 id="btn-onboard-continue"
                 onClick={handleContinue}
                 disabled={selected.size < 3}
-                className="btn btn-primary btn-lg"
-                style={{ opacity: selected.size < 3 ? 0.5 : 1 }}
+                className={`btn btn-primary btn-lg ${selected.size < 3 ? 'opacity-50' : ''}`}
               >
                 Continue ({selected.size} selected)
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="btn btn-ghost"
-                style={{ display: 'block', margin: 'var(--spacing-4) auto 0', color: 'var(--on-surface-variant)', fontSize: '0.875rem' }}
+                className="btn btn-ghost mx-auto mt-4 block text-sm text-[var(--on-surface-variant)]"
               >
                 Skip for now
               </button>
@@ -171,19 +140,18 @@ export default function OnboardingPage() {
         )}
 
         {step === 2 && (
-          <div className="fade-in" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '5rem', marginBottom: 'var(--spacing-6)', animation: 'neonPulse 2s infinite' }}>✦</div>
-            <h1 className="display-md" style={{ marginBottom: 'var(--spacing-4)' }}>
+          <div className="fade-in text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 animate-pulse items-center justify-center rounded-full border border-[rgba(159,255,136,0.3)] bg-[rgba(159,255,136,0.12)] text-2xl font-bold text-[var(--primary)]">OK</div>
+            <h1 className="display-md mb-4">
               You're all set, {user?.username || 'Curator'}!
             </h1>
-            <p className="body-lg" style={{ marginBottom: 'var(--spacing-8)', maxWidth: 400, margin: '0 auto var(--spacing-8)' }}>
+            <p className="body-lg mx-auto mb-8 max-w-[25rem]">
               We've curated your personal screening room. Your recommendations are ready.
             </p>
             <button
               id="btn-enter-cinema"
               onClick={handleContinue}
-              className="btn btn-primary btn-lg"
-              style={{ margin: '0 auto' }}
+              className="btn btn-primary btn-lg mx-auto"
             >
               Enter the Cinema →
             </button>

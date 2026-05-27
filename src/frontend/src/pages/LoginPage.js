@@ -48,66 +48,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--background)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)]">
       {/* Background light leaks */}
       <div className="light-leak light-leak-1" />
       <div className="light-leak light-leak-2" />
 
       {/* Decorative film strip pattern */}
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: '50%',
-        background: 'linear-gradient(to left, rgba(14,14,14,0) 0%, rgba(14,14,14,1) 100%)',
-        zIndex: 1,
-      }} />
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: '50%',
-        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(255,255,255,0.02) 80px, rgba(255,255,255,0.02) 82px)',
-        zIndex: 0,
-      }} />
+      <div className="absolute bottom-0 right-0 top-0 z-[1] hidden w-1/2 bg-[linear-gradient(to_left,rgba(14,14,14,0)_0%,rgba(14,14,14,1)_100%)] lg:block" />
+      <div className="absolute bottom-0 right-0 top-0 hidden w-1/2 bg-[repeating-linear-gradient(0deg,transparent,transparent_80px,rgba(255,255,255,0.02)_80px,rgba(255,255,255,0.02)_82px)] lg:block" />
 
       {/* Form Card */}
-      <div style={{
-        position: 'relative', zIndex: 10,
-        width: '100%', maxWidth: 440,
-        margin: 'var(--spacing-6)',
-        animation: 'fadeIn 0.5s ease both',
-      }}>
+      <div className="fade-in relative z-10 m-6 w-full max-w-[440px]">
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-8)' }}>
-          <div style={{
-            fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800,
-            color: 'var(--primary)', letterSpacing: '-0.03em',
-          }}>
+        <div className="mb-8 text-center">
+          <div className="font-display text-[2rem] font-extrabold tracking-[-0.03em] text-[var(--primary)]">
             ◈ The Curator
           </div>
-          <div className="body-md" style={{ marginTop: 4 }}>Premium Screening · Personalized Cinema</div>
+          <div className="body-md mt-1">Premium Screening · Personalized Cinema</div>
         </div>
 
         {/* Tab switcher */}
-        <div style={{
-          display: 'flex', background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-          padding: 4, marginBottom: 'var(--spacing-6)',
-        }}>
+        <div className="mb-6 flex rounded-[var(--radius-xl)] bg-[var(--surface-container)] p-1">
           {['login', 'register'].map((t) => (
             <button
               key={t}
               onClick={() => { setTab(t); setError(''); }}
-              style={{
-                flex: 1, padding: 'var(--spacing-3)', borderRadius: 'calc(var(--radius-xl) - 4px)',
-                background: tab === t ? 'var(--surface-container-highest)' : 'transparent',
-                color: tab === t ? 'var(--on-surface)' : 'var(--on-surface-variant)',
-                fontWeight: 600, fontSize: '0.9375rem',
-                border: 'none', cursor: 'pointer', transition: 'all var(--transition-fast)',
-                boxShadow: tab === t ? '0 2px 8px rgba(0,0,0,0.3)' : 'none',
-              }}
+              className={`flex-1 rounded-[calc(var(--radius-xl)-4px)] px-4 py-3 text-[0.9375rem] font-semibold transition ${tab === t ? 'bg-[var(--surface-container-highest)] text-[var(--on-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.3)]' : 'text-[var(--on-surface-variant)]'}`}
             >
               {t === 'login' ? 'Sign In' : 'Create Account'}
             </button>
@@ -115,14 +81,10 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <div style={{
-          background: 'rgba(26,25,25,0.8)', backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(73,72,71,0.4)',
-          borderRadius: 'var(--radius-xl)', padding: 'var(--spacing-8)',
-        }}>
+        <div className="rounded-[var(--radius-xl)] border border-[rgba(73,72,71,0.4)] bg-[rgba(26,25,25,0.8)] p-8 backdrop-blur-[20px]">
           <form onSubmit={tab === 'login' ? handleLogin : handleRegister}>
-            <div style={{ marginBottom: 'var(--spacing-4)' }}>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--on-surface-variant)', marginBottom: 'var(--spacing-2)' }}>
+            <div className="mb-4">
+              <label className="mb-2 block text-[0.8125rem] font-medium text-[var(--on-surface-variant)]">
                 Email Address
               </label>
               <input
@@ -138,8 +100,8 @@ export default function LoginPage() {
             </div>
 
             {tab === 'register' && (
-              <div style={{ marginBottom: 'var(--spacing-4)' }}>
-                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--on-surface-variant)', marginBottom: 'var(--spacing-2)' }}>
+              <div className="mb-4">
+                <label className="mb-2 block text-[0.8125rem] font-medium text-[var(--on-surface-variant)]">
                   Full Name
                 </label>
                 <input
@@ -155,8 +117,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div style={{ marginBottom: tab === 'register' ? 'var(--spacing-4)' : 'var(--spacing-6)' }}>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--on-surface-variant)', marginBottom: 'var(--spacing-2)' }}>
+            <div className={tab === 'register' ? 'mb-4' : 'mb-6'}>
+              <label className="mb-2 block text-[0.8125rem] font-medium text-[var(--on-surface-variant)]">
                 Password
               </label>
               <input
@@ -172,8 +134,8 @@ export default function LoginPage() {
             </div>
 
             {tab === 'register' && (
-              <div style={{ marginBottom: 'var(--spacing-6)' }}>
-                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--on-surface-variant)', marginBottom: 'var(--spacing-2)' }}>
+              <div className="mb-6">
+                <label className="mb-2 block text-[0.8125rem] font-medium text-[var(--on-surface-variant)]">
                   Confirm Password
                 </label>
                 <input
@@ -191,16 +153,8 @@ export default function LoginPage() {
 
             {/* Error */}
             {error && (
-              <div style={{
-                padding: 'var(--spacing-3) var(--spacing-4)',
-                borderRadius: 'var(--radius-md)',
-                background: 'rgba(255,115,81,0.1)',
-                border: '1px solid rgba(255,115,81,0.3)',
-                color: 'var(--error)',
-                fontSize: '0.875rem',
-                marginBottom: 'var(--spacing-4)',
-              }}>
-                ⚠ {error}
+              <div className="mb-4 rounded-[var(--radius-md)] border border-[rgba(255,115,81,0.3)] bg-[rgba(255,115,81,0.1)] px-4 py-3 text-[0.875rem] text-[var(--error)]">
+                {error}
               </div>
             )}
 
@@ -208,28 +162,27 @@ export default function LoginPage() {
               type="submit"
               id={tab === 'login' ? 'btn-login' : 'btn-register'}
               disabled={loading}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}
+              className={`btn btn-primary w-full justify-center ${loading ? 'opacity-70' : ''}`}
             >
-              {loading ? '...' : tab === 'login' ? '→ Enter the Cinema' : '✦ Create Account'}
+              {loading ? '...' : tab === 'login' ? 'Enter the Cinema' : 'Create Account'}
             </button>
           </form>
 
           {tab === 'login' && (
-            <p style={{ textAlign: 'center', marginTop: 'var(--spacing-4)', fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>
+            <p className="mt-4 text-center text-[0.875rem] text-[var(--on-surface-variant)]">
               New here?{' '}
-              <button onClick={() => setTab('register')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setTab('register')} className="border-none bg-transparent font-semibold text-[var(--primary)]">
                 Create a free account
               </button>
             </p>
           )}
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: 'var(--spacing-6)', fontSize: '0.75rem', color: 'var(--outline)' }}>
+        <p className="mt-6 text-center text-[0.75rem] text-[var(--outline)]">
           By continuing, you agree to our{' '}
-          <Link to="/terms" style={{ color: 'var(--on-surface-variant)' }}>Terms of Service</Link>
+          <Link to="/terms" className="text-[var(--on-surface-variant)]">Terms of Service</Link>
           {' '}and{' '}
-          <Link to="/privacy" style={{ color: 'var(--on-surface-variant)' }}>Privacy Policy</Link>
+          <Link to="/privacy" className="text-[var(--on-surface-variant)]">Privacy Policy</Link>
         </p>
       </div>
     </div>

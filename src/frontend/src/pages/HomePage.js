@@ -108,19 +108,18 @@ export default function HomePage() {
   return (
     <div className="fade-in">
       {/* Greeting */}
-      <div className="top-bar">
+      <div className="top-bar flex-col items-start gap-4 md:flex-row md:items-center">
         <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--on-surface)' }}>
-            {isAuthenticated ? `Welcome back, ${user?.username || 'Curator'} 👋` : 'Welcome to The Curator'}
+          <h1 className="font-display text-2xl font-bold text-[var(--on-surface)] sm:text-3xl">
+            {isAuthenticated ? `Welcome back, ${user?.username || 'Curator'}` : 'Welcome to The Curator'}
           </h1>
-          <p className="body-md" style={{ marginTop: 4 }}>Your personalized cinema experience</p>
+          <p className="body-md mt-1">Your personalized cinema experience</p>
         </div>
         <button
-          className="btn btn-primary"
+          className="btn btn-primary w-full justify-center sm:w-auto"
           onClick={() => navigate('/search')}
-          style={{ gap: 'var(--spacing-2)' }}
         >
-          ⌕ Search Movies
+          Search Movies
         </button>
       </div>
 
@@ -130,7 +129,7 @@ export default function HomePage() {
       {/* Personalized Recommendations - đặt LÊN ĐẦU vì quan trọng nhất */}
       {isAuthenticated && (
         <MovieRow
-          title="🎯 Recommended for You"
+          title="Recommended for You"
           subtitle={recSubtitle}
           badge={recBadge}
           movies={recommended}
@@ -144,7 +143,7 @@ export default function HomePage() {
       {/* Because You Watched - chỉ hiện khi user có watch history thật */}
       {showSimilarToWatched && (
         <MovieRow
-          title="🍿 Because You Watched"
+          title="Because You Watched"
           subtitle={stwSubtitle}
           badge={stwBadge}
           movies={similarToWatched}
@@ -155,7 +154,7 @@ export default function HomePage() {
 
       {/* Trending Now */}
       <MovieRow
-        title="🔥 Trending Now"
+        title="Trending Now"
         movies={trending}
         loading={loading}
         cardWidth={180}
@@ -163,7 +162,7 @@ export default function HomePage() {
 
       {/* Top Rated */}
       <MovieRow
-        title="⭐ Top Rated"
+        title="Top Rated"
         movies={topRated}
         loading={loading}
         cardWidth={180}
@@ -171,21 +170,14 @@ export default function HomePage() {
 
       {/* CTA for guests */}
       {!isAuthenticated && (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(159,255,136,0.08), rgba(0,210,253,0.08))',
-          border: '1px solid rgba(159,255,136,0.15)',
-          borderRadius: 'var(--radius-xl)',
-          padding: 'var(--spacing-10)',
-          textAlign: 'center',
-          marginTop: 'var(--spacing-8)',
-        }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 700, marginBottom: 'var(--spacing-3)' }}>
+        <div className="mt-8 rounded-[var(--radius-xl)] border border-[rgba(159,255,136,0.15)] bg-[linear-gradient(135deg,rgba(159,255,136,0.08),rgba(0,210,253,0.08))] px-6 py-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:px-10 sm:py-10">
+          <h2 className="font-display text-2xl font-bold sm:text-[1.75rem]">
             Get Personalized Recommendations
           </h2>
-          <p className="body-lg" style={{ marginBottom: 'var(--spacing-6)', maxWidth: 480, margin: '0 auto var(--spacing-6)' }}>
+          <p className="body-lg mx-auto mb-6 mt-3 max-w-[30rem]">
             Sign in to unlock AI-powered movie recommendations tailored just for you.
           </p>
-          <div style={{ display: 'flex', gap: 'var(--spacing-3)', justifyContent: 'center' }}>
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <button className="btn btn-primary btn-lg" onClick={() => navigate('/register')}>
               Get Started Free
             </button>

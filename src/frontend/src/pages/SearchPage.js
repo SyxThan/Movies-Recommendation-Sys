@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import movieApi from '../api/movieApi';
 import MovieCard from '../components/movie/MovieCard';
+import EmptyState from '../components/ui/EmptyState';
+import { SkeletonGrid } from '../components/ui/LoadingSkeleton';
 
 const DEMO_RESULTS = [
   { id: 1, title: 'Interstellar', vote_average: 8.6, release_year: 2014, genres: ['Sci-Fi', 'Drama'] },
@@ -14,10 +15,10 @@ const DEMO_RESULTS = [
 
 const GENRES = ['All', 'Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi', 'Thriller', 'Animation', 'Documentary'];
 const SORT_OPTIONS = [
-  { value: 'vote_average', label: '⭐ Top Rated' },
-  { value: 'release_year', label: '📅 Newest' },
-  { value: 'title', label: '🔤 A–Z' },
-  { value: 'popularity', label: '🔥 Popular' },
+  { value: 'vote_average', label: 'Top Rated' },
+  { value: 'release_year', label: 'Newest' },
+  { value: 'title', label: 'A–Z' },
+  { value: 'popularity', label: 'Popular' },
 ];
 
 export default function SearchPage() {
@@ -63,55 +64,40 @@ export default function SearchPage() {
   return (
     <div className="fade-in">
       {/* Header */}
-      <div style={{ marginBottom: 'var(--spacing-8)' }}>
-        <h1 className="display-md" style={{ marginBottom: 'var(--spacing-2)' }}>
+      <div className="mb-8">
+        <h1 className="display-md mb-2">
           Discover Films
         </h1>
         <p className="body-lg">Search our curated collection of cinematic masterpieces</p>
       </div>
 
       {/* Search Bar */}
-      <form onSubmit={handleSubmit} style={{ marginBottom: 'var(--spacing-6)' }}>
-        <div style={{ position: 'relative' }}>
-          <span style={{
-            position: 'absolute', left: 'var(--spacing-5)', top: '50%', transform: 'translateY(-50%)',
-            fontSize: '1.25rem', color: 'var(--on-surface-variant)', pointerEvents: 'none',
-          }}>⌕</span>
+      <form onSubmit={handleSubmit} className="mb-6">
+        <div className="relative">
+          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-xl text-[var(--on-surface-variant)]">⌕</span>
           <input
             ref={inputRef}
             id="search-input"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="input-field"
+            className={`input-field h-14 rounded-full border border-[rgba(73,72,71,0.4)] pl-14 pr-20 text-[1.0625rem] ${query ? 'shadow-[0_0_0_2px_rgba(0,210,253,0.2)]' : ''}`}
             placeholder="Search for movies, directors, genres..."
-            style={{
-              paddingLeft: 'calc(var(--spacing-5) + 1.5rem + var(--spacing-3))',
-              paddingRight: 'var(--spacing-20)',
-              fontSize: '1.0625rem',
-              height: 56,
-              borderRadius: 'var(--radius-full)',
-              border: '1px solid rgba(73,72,71,0.4)',
-              boxShadow: query ? '0 0 0 2px rgba(0,210,253,0.2)' : 'none',
-            }}
           />
           {query && (
             <button
               type="button"
               onClick={() => { setQuery(''); setResults([]); setSearched(false); inputRef.current?.focus(); }}
-              style={{
-                position: 'absolute', right: 'var(--spacing-5)', top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', fontSize: '1.25rem',
-              }}
+              className="absolute right-5 top-1/2 -translate-y-1/2 bg-transparent text-xl text-[var(--on-surface-variant)] transition hover:text-white"
             >×</button>
           )}
         </div>
       </form>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 'var(--spacing-8)', alignItems: 'center', marginBottom: 'var(--spacing-8)', flexWrap: 'wrap' }}>
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
         {/* Genre chips */}
-        <div style={{ display: 'flex', gap: 'var(--spacing-2)', flexWrap: 'wrap', flex: 1 }}>
+        <div className="flex flex-1 flex-wrap gap-2">
           {GENRES.map((g) => (
             <button
               key={g}
@@ -128,8 +114,7 @@ export default function SearchPage() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="input-field"
-          style={{ width: 'auto', flexShrink: 0, borderRadius: 'var(--radius-full)', paddingTop: 'var(--spacing-2)', paddingBottom: 'var(--spacing-2)' }}
+          className="input-field w-full shrink-0 rounded-full py-2 sm:w-auto"
         >
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -139,45 +124,36 @@ export default function SearchPage() {
 
       {/* Results */}
       {!searched && !query && (
-        <div style={{ textAlign: 'center', paddingTop: 'var(--spacing-16)' }}>
-          <div style={{ fontSize: '5rem', marginBottom: 'var(--spacing-4)', opacity: 0.3 }}>🎬</div>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, marginBottom: 'var(--spacing-3)', color: 'var(--on-surface-variant)' }}>
-            Start your search
-          </h2>
-          <p className="body-md">Type a movie title, director name, or genre</p>
-        </div>
+        <EmptyState
+          title="Start your search"
+          description="Type a movie title, director name, or genre to explore the catalog."
+        />
       )}
 
       {loading && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 'var(--spacing-5)' }}>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i}>
-              <div className="skeleton" style={{ aspectRatio: '2/3', borderRadius: 'var(--radius-lg)' }} />
-              <div className="skeleton" style={{ height: 14, marginTop: 10, width: '80%' }} />
-            </div>
-          ))}
-        </div>
+        <SkeletonGrid count={8} />
       )}
 
       {!loading && searched && (
         <>
-          <div style={{ marginBottom: 'var(--spacing-5)', color: 'var(--on-surface-variant)', fontSize: '0.875rem' }}>
+          <div className="mb-5 text-sm text-[var(--on-surface-variant)]">
             {results.length > 0
               ? `Found ${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"`
               : `No results found for "${query}"`
             }
           </div>
           {results.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 'var(--spacing-5)' }}>
+            <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]">
               {results.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} width="100%" />
               ))}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', paddingTop: 'var(--spacing-12)' }}>
-              <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-4)', opacity: 0.3 }}>🔍</div>
-              <p className="body-lg">Try adjusting your search or filters</p>
-            </div>
+            <EmptyState
+              compact
+              title="No matching results"
+              description="Try adjusting your keywords or changing the selected filters."
+            />
           )}
         </>
       )}

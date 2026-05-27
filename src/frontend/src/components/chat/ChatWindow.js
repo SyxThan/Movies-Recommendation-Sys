@@ -46,67 +46,27 @@ export default function ChatWindow({ onClose }) {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      width: 380,
-      height: 550,
-      maxHeight: '80vh',
-      borderRadius: 16,
-      overflow: 'hidden',
-      background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)',
-      border: '1px solid rgba(255,255,255,0.1)',
-      boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-    }}>
+    <div className="flex h-[550px] max-h-[80vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,#1a1a2e_0%,#16213e_100%)] shadow-[0_20px_60px_rgba(0,0,0,0.5)] sm:w-[380px]">
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '14px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        background: 'rgba(255,255,255,0.03)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '1.1rem' }}>🎬</span>
-          <span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#fff' }}>
+      <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-4 py-3.5">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--secondary))] text-xs font-bold text-black">AI</span>
+          <span className="text-[0.95rem] font-semibold text-white">
             Movie Assistant
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div className="flex gap-1.5">
           <button
             onClick={handleNewChat}
             title="New Chat"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'rgba(255,255,255,0.6)',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              padding: '4px 8px',
-              borderRadius: 6,
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#fff'}
-            onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+            className="rounded-md px-2 py-1 text-sm text-white/60 transition hover:bg-white/10 hover:text-white"
           >
-            ✏️
+            New
           </button>
           <button
             onClick={onClose}
             title="Close"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'rgba(255,255,255,0.6)',
-              cursor: 'pointer',
-              fontSize: '1.1rem',
-              padding: '4px 8px',
-              borderRadius: 6,
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#fff'}
-            onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+            className="rounded-md px-2 py-1 text-base text-white/60 transition hover:bg-white/10 hover:text-white"
           >
             ✕
           </button>
@@ -114,13 +74,7 @@ export default function ChatWindow({ onClose }) {
       </div>
 
       {/* Messages */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '12px 14px',
-        scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(255,255,255,0.15) transparent',
-      }}>
+      <div className="flex-1 overflow-y-auto px-[14px] py-3 [scrollbar-color:rgba(255,255,255,0.15)_transparent] [scrollbar-width:thin]">
         {messages.length === 0 && !isLoading && (
           <QuickActions onSend={handleQuickAction} />
         )}
@@ -131,28 +85,13 @@ export default function ChatWindow({ onClose }) {
 
         {/* Typing indicator */}
         {isLoading && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            marginBottom: 12,
-          }}>
-            <div style={{
-              padding: '10px 16px',
-              borderRadius: '16px 16px 16px 4px',
-              background: 'rgba(255, 255, 255, 0.08)',
-            }}>
-              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <div className="mb-3 flex items-start">
+            <div className="rounded-[16px_16px_16px_4px] bg-white/10 px-4 py-2.5">
+              <div className="flex items-center gap-1">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.5)',
-                      display: 'inline-block',
-                      animation: `chatTypingDot 1.4s ${i * 0.2}s ease-in-out infinite`,
-                    }}
+                    className={`inline-block h-[7px] w-[7px] rounded-full bg-white/60 animate-pulse ${i === 1 ? '[animation-delay:150ms]' : i === 2 ? '[animation-delay:300ms]' : ''}`}
                   />
                 ))}
               </div>
@@ -165,25 +104,11 @@ export default function ChatWindow({ onClose }) {
 
       {/* Error */}
       {error && (
-        <div style={{
-          padding: '6px 14px',
-          background: 'rgba(239, 68, 68, 0.15)',
-          color: '#fca5a5',
-          fontSize: '0.8rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
+        <div className="flex items-center justify-between bg-red-500/15 px-[14px] py-1.5 text-[0.8rem] text-red-300">
           <span>{error}</span>
           <button
             onClick={clearError}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#fca5a5',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-            }}
+            className="bg-transparent text-[0.9rem] text-red-300"
           >
             ✕
           </button>
@@ -191,16 +116,8 @@ export default function ChatWindow({ onClose }) {
       )}
 
       {/* Input */}
-      <div style={{
-        padding: '12px 14px',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        background: 'rgba(255,255,255,0.02)',
-      }}>
-        <div style={{
-          display: 'flex',
-          gap: 8,
-          alignItems: 'flex-end',
-        }}>
+      <div className="border-t border-white/10 bg-white/[0.02] px-[14px] py-3">
+        <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}
             value={input}
@@ -208,20 +125,7 @@ export default function ChatWindow({ onClose }) {
             onKeyDown={handleKeyDown}
             placeholder="Hỏi gì đó về phim..."
             rows={1}
-            style={{
-              flex: 1,
-              padding: '10px 14px',
-              borderRadius: 12,
-              border: '1px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.06)',
-              color: '#fff',
-              fontSize: '0.88rem',
-              resize: 'none',
-              outline: 'none',
-              fontFamily: 'inherit',
-              maxHeight: 80,
-              lineHeight: 1.4,
-            }}
+            className="max-h-20 flex-1 resize-none rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-[0.88rem] leading-[1.4] text-white outline-none transition placeholder:text-white/45 focus:border-[rgba(0,210,253,0.35)] focus:ring-2 focus:ring-[rgba(0,210,253,0.15)]"
             onInput={(e) => {
               e.target.style.height = 'auto';
               e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px';
@@ -230,36 +134,12 @@ export default function ChatWindow({ onClose }) {
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              border: 'none',
-              background: input.trim() && !isLoading
-                ? 'var(--primary, #6366f1)'
-                : 'rgba(255,255,255,0.08)',
-              color: '#fff',
-              cursor: input.trim() && !isLoading ? 'pointer' : 'default',
-              fontSize: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
-              flexShrink: 0,
-            }}
+            className={`flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] text-sm text-white transition ${input.trim() && !isLoading ? 'cursor-pointer bg-[var(--primary,#6366f1)] hover:brightness-110' : 'cursor-default bg-white/10 text-white/50'}`}
           >
-            ➤
+            Send
           </button>
         </div>
       </div>
-
-      {/* Typing animation keyframes */}
-      <style>{`
-        @keyframes chatTypingDot {
-          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-          30% { transform: translateY(-6px); opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 }
