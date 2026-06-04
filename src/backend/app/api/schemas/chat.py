@@ -36,7 +36,8 @@ class ChatSessionResponse(BaseModel):
 
 # Request
 class ChatRequest(BaseModel):
-    session_id: UUID
+    # [CHANGED] Cho phép session_id optional để backend có thể tự tạo session mới khi thiếu
+    session_id: Optional[UUID] = None
     message: str = Field(..., min_length=1, max_length=500)
 
 

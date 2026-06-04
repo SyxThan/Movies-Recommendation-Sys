@@ -7,15 +7,20 @@ Không hardcode if/else keyword matching.
 
 import asyncio
 import json
+import logging
+from typing import Any, Sequence
 
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
-from langchain_core.messages import HumanMessage
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models import User
 from app.services.agent_tools import build_tools_with_context
+
+
+logger = logging.getLogger(__name__)
 
 
 SYSTEM_PROMPT = """Bạn là trợ lý AI chuyên về phim, hỗ trợ người dùng tìm kiếm và khám phá phim.
@@ -39,11 +44,11 @@ Bạn có thể giúp user:
 
 
 MAX_RETRIES = 3
-RETRY_BASE_DELAY = 5  # seconds
+RETRY_BASE_DELAY = 5
 
 
-def get_llm():
-    """Khởi tạo LLM (Google Gemini)."""
+def get_llm() -> ChatGoogleGenerativeAI:
+    """Khởi tạo Gemini model cho ReAct agent."""
     return ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         google_api_key=settings.GOOGLE_API_KEY,
@@ -53,49 +58,66 @@ def get_llm():
     )
 
 
-async def run_agent(db: Session, user: User, message: str) -> dict:
-    """
-    Chạy agent cho một tin nhắn (single-turn).
-    Agent có thể gọi nhiều tools trong một lượt trước khi trả lời.
+def _sanitize_history(messages: Sequence[BaseMessage]) -> list[BaseMessage]:
+    """[NEW] Lọc và chuẩn hóa history trước khi gửi vào LangGraph."""
+    sanitized_messages: list[BaseMessage] = []
 
-    Returns:
-        {
-            "text": str,                    # Câu trả lời của agent
-            "recommended_movies": list[dict] # Phim từ tool results (nếu có)
-        }
-    """
+    for message in messages:
+        if isinstance(message, (HumanMessage, AIMessage)):
+            sanitized_messages.append(message)
+
+    return sanitized_messages
+
+
+async def run_agent(db: Session, user: User, messages: Sequence[BaseMessage]) -> dict[str, Any]:
+    """[CHANGED] Chạy agent với full message history cho multi-turn conversation."""
     llm = get_llm()
     tools = build_tools_with_context(db, user)
     agent = create_react_agent(llm, tools, prompt=SYSTEM_PROMPT)
+    sanitized_messages = _sanitize_history(messages)
 
-    last_error = None
+    if not sanitized_messages:
+        sanitized_messages = [HumanMessage(content="Xin hãy hỗ trợ tôi tìm phim phù hợp.")]
+
+    last_error: Exception | None = None
+
     for attempt in range(MAX_RETRIES):
         try:
             result = await agent.ainvoke({
-                "messages": [HumanMessage(content=message)]
+                "messages": sanitized_messages,
             })
 
-            raw_content = result["messages"][-1].content
+            result_messages = result.get("messages", [])
+            raw_content = result_messages[-1].content if result_messages else ""
             response_text = _normalize_content(raw_content)
-            recommended_movies = _extract_movies_from_tool_results(result["messages"])
+            recommended_movies = _extract_movies_from_tool_results(result_messages)
 
             return {
                 "text": response_text,
                 "recommended_movies": recommended_movies,
             }
 
-        except Exception as e:
-            last_error = e
-            error_str = str(e).lower()
-            is_rate_limit = "429" in error_str or "resource_exhausted" in error_str or "quota" in error_str
+        except Exception as exc:
+            last_error = exc
+            error_str = str(exc).lower()
+            is_rate_limit = (
+                "429" in error_str
+                or "resource_exhausted" in error_str
+                or "quota" in error_str
+            )
 
             if is_rate_limit and attempt < MAX_RETRIES - 1:
                 delay = RETRY_BASE_DELAY * (2 ** attempt)
-                print(f"[chat_agent] Rate limited (attempt {attempt + 1}/{MAX_RETRIES}), retrying in {delay}s...")
+                logger.warning(
+                    "[chat_agent] Rate limited (attempt %s/%s), retrying in %ss",
+                    attempt + 1,
+                    MAX_RETRIES,
+                    delay,
+                )
                 await asyncio.sleep(delay)
                 continue
 
-            print(f"[chat_agent] Error (attempt {attempt + 1}): {e}")
+            logger.exception("[chat_agent] Agent execution failed on attempt %s", attempt + 1)
             break
 
     error_msg = str(last_error).lower() if last_error else ""
@@ -104,29 +126,28 @@ async def run_agent(db: Session, user: User, message: str) -> dict:
             "text": "Hệ thống đang tải cao, vui lòng thử lại sau 30 giây.",
             "recommended_movies": [],
         }
+
     return {
         "text": "Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau.",
         "recommended_movies": [],
     }
 
 
-def _normalize_content(content) -> str:
-    """
-    Gemini 2.5 có thể trả content dạng list[dict] thay vì string.
-    Ví dụ: [{'type': 'text', 'text': '...'}]
-    Hàm này normalize về plain string.
-    """
+def _normalize_content(content: Any) -> str:
+    """[CHANGED] Normalize Gemini content về plain text string."""
     if isinstance(content, str):
         return content
+
     if isinstance(content, list):
-        parts = []
+        parts: list[str] = []
         for item in content:
             if isinstance(item, dict):
                 parts.append(item.get("text", ""))
             elif isinstance(item, str):
                 parts.append(item)
-        return "".join(parts)
-    return str(content)
+        return "".join(parts).strip()
+
+    return str(content).strip()
 
 
 def _extract_movies_from_tool_results(messages: list) -> list[dict]:
