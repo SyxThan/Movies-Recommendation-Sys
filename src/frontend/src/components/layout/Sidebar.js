@@ -11,8 +11,12 @@ const navItems = [
   { to: '/watchlist', icon: '♥', label: 'Watchlist' },
 ];
 
+const adminItems = [
+  { to: '/admin/movies', icon: '⚙', label: 'Manage Movies' },
+];
+
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -46,6 +50,23 @@ export default function Sidebar() {
             <span>{item.label}</span>
           </NavLink>
         ))}
+
+        {isAdmin && (
+          <>
+            <div className="divider" />
+            <div className="mb-2 px-4 text-xs uppercase text-[var(--on-surface-variant)]">Admin</div>
+            {adminItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
+              >
+                <span className="nav-icon text-[1.2rem]">{item.icon}</span>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </>
+        )}
       </div>
 
       {/* User Profile */}

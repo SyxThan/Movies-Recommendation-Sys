@@ -32,7 +32,11 @@ export default function DiscoverPage() {
         }
       } catch (err) {
         console.error('[Discover] Failed to load genres:', err);
-        const demoGenres = Object.keys(GENRE_ICONS).map((name, i) => ({ id: i + 1, name }));
+        const demoGenres = [
+          { id: 1, name: 'Action' }, { id: 2, name: 'Comedy' },
+          { id: 3, name: 'Drama' }, { id: 4, name: 'Horror' },
+          { id: 5, name: 'Sci-Fi' }, { id: 6, name: 'Romance' },
+        ];
         setGenres(demoGenres);
         setSelectedGenre(demoGenres[0]);
       } finally {

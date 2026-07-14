@@ -31,6 +31,7 @@ class UserResponse(BaseModel):
     id: uuid.UUID
     email: str
     full_name: Optional[str]
+    role: str = "user"
     created_at: datetime
 
     class Config:

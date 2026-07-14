@@ -146,6 +146,23 @@ const movieApi = {
       recommendations: normalizeMovieList(res.recommendations || []),
     };
   },
+
+  // ── Admin CRUD ──
+  createMovie: async (data) => normalizeMovie(await axiosClient.post('/movies', data)),
+  updateMovie: async (id, data) => normalizeMovie(await axiosClient.put(`/movies/${id}`, data)),
+  deleteMovie: (id) => axiosClient.delete(`/movies/${id}`),
+
+  // ── Reviews ──
+  getMovieReviews: (movieId, params) =>
+    axiosClient.get(`/ratings/movie/${movieId}`, { params }),
+  getMyReview: (movieId) => axiosClient.get(`/ratings/movie/${movieId}/me`),
+  submitReview: (movieId, score, reviewText) =>
+    axiosClient.post('/ratings', {
+      movie_id: parseInt(movieId, 10),
+      rating_score: parseFloat(score),
+      review_text: reviewText || null,
+    }),
+  deleteReview: (ratingId) => axiosClient.delete(`/ratings/${ratingId}`),
 };
 
 export default movieApi;

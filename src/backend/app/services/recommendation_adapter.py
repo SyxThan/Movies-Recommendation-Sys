@@ -191,11 +191,6 @@ class RecommendationResultMapper:
     def map_recommendations(
         self, recommendations: List[Tuple[int, float]]
     ) -> List[Dict]:
-        """
-        Convert internal format [(movie_id, predicted_score), ...] to external format.
-        Returns: [{ "movie_id": int, "title": str, "score": float, ... }, ...]
-        Batch-loads all movies in 1 query.
-        """
         if not recommendations:
             return []
 

@@ -4,23 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import ChatWindow from './ChatWindow';
 
 export default function ChatBotWidget() {
-  const { isOpen, setIsOpen, activeSession, createSession } = useChat();
+  const { isOpen, setIsOpen, loadSessions } = useChat();
   const { isAuthenticated } = useAuth();
 
-  const handleToggle = useCallback(async () => {
-    if (!isOpen) {
-      if (!activeSession) {
-        try {
-          await createSession();
-        } catch {
-          return; // error handled by context
-        }
-      }
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
-    }
-  }, [isOpen, activeSession, createSession, setIsOpen]);
+  const handleToggle = useCallback(() => {
+    // Session is created lazily on first message — just toggle visibility.
+    if (!isOpen) loadSessions();
+    setIsOpen(!isOpen);
+  }, [isOpen, loadSessions, setIsOpen]);
 
   if (!isAuthenticated) return null;
 

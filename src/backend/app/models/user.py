@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(100))
+    role = Column(String(20), default='user', nullable=False, server_default='user')  # 'user' | 'admin'
     created_at = Column(DateTime, server_default=func.current_timestamp())
 
     # Relationships

@@ -10,3 +10,7 @@ class ActionEnum(str, enum.Enum):
     search = 'search'
     rate = 'rate'
     watch = 'watch'
+
+class RoleEnum(str, enum.Enum):
+    user = 'user'
+    admin = 'admin'

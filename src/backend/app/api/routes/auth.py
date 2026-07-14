@@ -21,7 +21,6 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     """
     POST /auth/register
-    Register a new account. Returns an access token immediately.
     """
     user = auth_service.register_user(db, payload)
     from app.core.security import create_access_token
@@ -33,7 +32,6 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     """
     POST /auth/login
-    Authenticate and return an access token.
     """
     user, token = auth_service.authenticate_user(db, payload)
     return AuthResponse(access_token=token, user=UserResponse.model_validate(user))
@@ -43,8 +41,6 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 def get_me(current_user: User = Depends(get_current_user)):
     """
     GET /auth/me
-    Return the currently authenticated user's profile.
-    Requires: Authorization: Bearer <token>
     """
     return UserResponse.model_validate(current_user)
 
@@ -57,8 +53,6 @@ def update_preferences(
 ):
     """
     PUT /auth/me/preferences
-    Replace the current user's preferred genres.
-    Payload: { "genre_ids": [1, 2, 3] }
     """
     user = auth_service.update_user_preferences(db, current_user, payload.genre_ids)
     return UpdatePreferencesResponse(

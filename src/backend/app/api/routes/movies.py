@@ -3,9 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_admin_user
 from app.api.schemas.auth import GenrePreferenceResponse
-from app.api.schemas.movie import MovieResponse, PaginatedMoviesResponse
+from app.api.schemas.movie import (
+    MovieResponse,
+    PaginatedMoviesResponse,
+    MovieCreateRequest,
+    MovieUpdateRequest,
+    MovieDeleteResponse,
+)
 from app.api.schemas.interaction import WatchMovieResponse
 from app.models import User, Genre
 from app.services import movie_service, watchlist_service
@@ -33,9 +39,7 @@ def list_movies(
     db: Session = Depends(get_db),
 ):
     """
-    GET /movies
-    Retrieve all movies with pagination.
-    Optional: ?genre=1  →  filter by genre ID
+    GET /moviess
     """
     total, movies = movie_service.get_movies(db, limit=limit, offset=offset, genre_id=genre)
     return PaginatedMoviesResponse(
@@ -55,7 +59,6 @@ def get_movies_by_genre(
 ):
     """
     GET /movies/by-genre/{genre_id}
-    Retrieve all movies filtered by a specific genre.
     """
     total, movies = movie_service.get_movies(db, limit=limit, offset=offset, genre_id=genre_id)
     if not movies and total == 0:
@@ -81,7 +84,6 @@ def get_all_movies_of_genre(
 ):
     """
     GET /movies/genres/{genre_id}/movies
-    Retrieve all movies of a genre with pagination and sorting.
     """
     genre_exists = db.query(Genre.id).filter(Genre.id == genre_id).first()
     if not genre_exists:
@@ -111,8 +113,6 @@ def get_all_movies(
 ):
     """
     GET /movies/all
-    Retrieve all movies without any genre filter.
-    Sort options: rating (default), release_date, title
     """
     total, movies = movie_service.get_all_movies(db, limit=limit, offset=offset, sort_by=sort_by)
     return PaginatedMoviesResponse(
@@ -132,8 +132,6 @@ def search_movies(
 ):
     """
     GET /movies/search?q=batman
-    Search movies by title (case-insensitive).
-    NOTE: This route MUST be declared before /{id} to avoid routing conflicts.
     """
     total, movies = movie_service.search_movies(db, q=q, limit=limit, offset=offset)
     return PaginatedMoviesResponse(
@@ -152,10 +150,6 @@ def watch_movie(
 ):
     """
     POST /movies/{movie_id}/watch
-    Called when user clicks 'Watch Now' on a movie card.
-    - Logs a 'watch' interaction for the recommendation engine.
-    - Automatically adds the movie to the user's watchlist (idempotent).
-    - Returns youtube_trailer_id so the frontend can embed the YouTube player.
     """
     result = watchlist_service.watch_movie(db, user_id=current_user.id, movie_id=movie_id)
     return WatchMovieResponse(**result)
@@ -165,9 +159,43 @@ def watch_movie(
 def get_movie(movie_id: int, db: Session = Depends(get_db)):
     """
     GET /movies/{id}
-    Retrieve details for a specific movie including its genres.
     """
     movie = movie_service.get_movie_by_id(db, movie_id)
     if not movie:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Movie not found")
     return MovieResponse.model_validate(movie)
+
+
+# ── Admin CRUD ────────────────────────────────────────────────────────────────
+@router.post("", response_model=MovieResponse, status_code=status.HTTP_201_CREATED)
+def create_movie(
+    payload: MovieCreateRequest,
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """POST /movies — Admin creates a new movie."""
+    movie = movie_service.create_movie(db, payload)
+    return MovieResponse.model_validate(movie)
+
+
+@router.put("/{movie_id}", response_model=MovieResponse)
+def update_movie(
+    movie_id: int,
+    payload: MovieUpdateRequest,
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """PUT /movies/{id} — Admin updates a movie."""
+    movie = movie_service.update_movie(db, movie_id, payload)
+    return MovieResponse.model_validate(movie)
+
+
+@router.delete("/{movie_id}", response_model=MovieDeleteResponse)
+def delete_movie(
+    movie_id: int,
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """DELETE /movies/{id} — Admin deletes a movie."""
+    movie_service.delete_movie(db, movie_id)
+    return MovieDeleteResponse(message="Movie deleted successfully", movie_id=movie_id)

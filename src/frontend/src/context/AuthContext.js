@@ -41,9 +41,10 @@ export function AuthProvider({ children }) {
   };
 
   const isAuthenticated = Boolean(user && localStorage.getItem('access_token'));
+  const isAdmin = Boolean(user && user.role === 'admin');
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated, isAdmin }}>
       {!loading && children}
     </AuthContext.Provider>
   );

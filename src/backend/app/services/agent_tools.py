@@ -11,6 +11,7 @@ from langchain_core.tools import tool
 from sqlalchemy.orm import Session
 
 from app.models import User
+from app.models.interaction import Watchlist
 
 
 # Simple TTL cache for trending (not user-specific)
@@ -139,7 +140,84 @@ def build_tools_with_context(db: Session, user: User):
         movie_map = {m.id: m for m in movies}
         return [_serialize_movie(movie_map[mid]) for mid in movie_ids if mid in movie_map]
 
-    return [search_movies, get_recommendations, get_movie_detail, get_trending, get_user_history]
+    @tool
+    def add_to_watchlist(movie_title: str) -> dict:
+        """Thêm một bộ phim vào danh sách xem (watchlist) của người dùng hiện tại.
+        Dùng khi user yêu cầu 'thêm phim X vào danh sách', 'lưu phim X lại',
+        'để dành phim X xem sau'. Tìm phim theo tên rồi thêm vào watchlist.
+        """
+        from app.services.movie_service import search_movies as svc_search
+        from app.services import watchlist_service
+
+        _total, results = svc_search(db, q=movie_title, limit=1)
+        if not results:
+            return {"success": False, "message": f"Không tìm thấy phim '{movie_title}'."}
+
+        movie = results[0]
+        existing = (
+            db.query(Watchlist)
+            .filter(Watchlist.user_id == user.id, Watchlist.movie_id == movie.id)
+            .first()
+        )
+        if existing:
+            return {
+                "success": True,
+                "already_in_watchlist": True,
+                "movie": _serialize_movie(movie),
+                "message": f"'{movie.title}' đã có sẵn trong danh sách xem của bạn.",
+            }
+
+        db.add(Watchlist(user_id=user.id, movie_id=movie.id))
+        db.commit()
+        return {
+            "success": True,
+            "already_in_watchlist": False,
+            "movie": _serialize_movie(movie),
+            "message": f"Đã thêm '{movie.title}' vào danh sách xem.",
+        }
+
+    @tool
+    def get_movie_reviews(movie_title: str) -> dict:
+        """Lấy đánh giá (review) và điểm trung bình của người xem cho một bộ phim.
+        Dùng khi user hỏi 'phim X được đánh giá thế nào', 'mọi người nghĩ gì về phim X',
+        'phim X có hay không', 'review phim X'. Trả về điểm trung bình và vài nhận xét gần đây.
+        """
+        from app.services.movie_service import search_movies as svc_search
+        from app.services import rating_service
+
+        _total, results = svc_search(db, q=movie_title, limit=1)
+        if not results:
+            return {"error": f"Không tìm thấy phim '{movie_title}'."}
+
+        movie = results[0]
+        total, reviews, avg_score = rating_service.get_movie_reviews(
+            db, movie_id=movie.id, limit=5, offset=0
+        )
+        return {
+            "id": movie.id,
+            "title": movie.title,
+            "average_score": round(avg_score, 1) if avg_score is not None else None,
+            "total_reviews": total,
+            "reviews": [
+                {
+                    "user_name": r["user_name"],
+                    "rating_score": r["rating_score"],
+                    "review_text": (r["review_text"] or "").strip()[:300],
+                }
+                for r in reviews
+                if (r["review_text"] or "").strip()
+            ],
+        }
+
+    return [
+        search_movies,
+        get_recommendations,
+        get_movie_detail,
+        get_trending,
+        get_user_history,
+        add_to_watchlist,
+        get_movie_reviews,
+    ]
 
 
 def _serialize_movie(movie) -> dict:

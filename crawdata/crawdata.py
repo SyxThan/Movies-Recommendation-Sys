@@ -1,10 +1,3 @@
-"""
-crawl_movies.py
----------------
-Crawl dữ liệu phim từ TMDB API và xuất ra CSV khớp với schema database:
-  id, title, overview, release_date, poster_path, youtube_trailer_id, vote_average, vote_count
-"""
-
 import requests
 import pandas as pd
 import time
@@ -22,8 +15,8 @@ CHECKPOINT = os.path.join(BASE_DIR, "checkpoint.json")
 
 API_KEY        = "7a0e83357f78444d94d6cef73a0e115f" 
 LANGUAGE       = "en-US"              
-DELAY_SECONDS  = 0.1                  # delay giữa mỗi request 
-BATCH_SAVE     = 50                   # checkpoint 
+DELAY_SECONDS  = 0.1                
+BATCH_SAVE     = 50                  
 
 BASE_URL   = "https://api.themoviedb.org/3/movie"
 TMDB_IMAGE = "https://image.tmdb.org/t/p/w500"   

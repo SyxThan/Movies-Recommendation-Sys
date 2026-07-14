@@ -4,6 +4,8 @@ import movieApi from '../api/movieApi';
 import watchlistApi from '../api/watchlistApi';
 import { useAuth } from '../context/AuthContext';
 import TrailerModal from '../components/movie/TrailerModal';
+import MovieForm from '../components/movie/MovieForm';
+import ReviewSection from '../components/movie/ReviewSection';
 import LazyImage from '../components/ui/LazyImage';
 
 const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -25,7 +27,7 @@ const DEMO_MOVIE = {
 export default function MovieDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,9 @@ export default function MovieDetailPage() {
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [trailerId, setTrailerId] = useState(null);
   const [watchLoading, setWatchLoading] = useState(false);
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -100,6 +105,20 @@ export default function MovieDetailPage() {
     setTrailerOpen(true);
   };
 
+  const handleDeleteMovie = async () => {
+    if (!movie) return;
+    if (!window.confirm(`Delete "${movie.title}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      await movieApi.deleteMovie(movie.id);
+      navigate('/');
+    } catch (err) {
+      alert(err?.detail || 'Failed to delete movie.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="w-full px-4 py-8 sm:px-8">
@@ -125,6 +144,14 @@ export default function MovieDetailPage() {
         />
       )}
 
+      {editOpen && (
+        <MovieForm
+          movie={movie}
+          onClose={() => setEditOpen(false)}
+          onSaved={(saved) => { setMovie(saved); setEditOpen(false); }}
+        />
+      )}
+
       {/* Hero */}
       <div className="relative mb-10 flex min-h-[450px] items-end overflow-hidden rounded-[var(--radius-xl)] shadow-[0_20px_80px_rgba(0,0,0,0.5)]">
         <div className={`absolute inset-0 ${backdropUrl ? '' : 'bg-[linear-gradient(135deg,#0a0a1e_0%,#1a1a3e_100%)]'}`}>
@@ -133,6 +160,15 @@ export default function MovieDetailPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(14,14,14,1)_0%,rgba(14,14,14,0.8)_40%,rgba(14,14,14,0)_100%),linear-gradient(to_top,rgba(14,14,14,1)_0%,transparent_50%)]" />
         
         <button onClick={() => navigate(-1)} className="btn btn-glass btn-sm absolute left-4 top-4 z-10 sm:left-6 sm:top-6">← Back</button>
+
+        {isAdmin && (
+          <div className="absolute right-4 top-4 z-10 flex gap-2 sm:right-6 sm:top-6">
+            <button onClick={() => setEditOpen(true)} className="btn btn-glass btn-sm">✏️ Edit</button>
+            <button onClick={handleDeleteMovie} disabled={deleting} className="btn btn-glass btn-sm text-red-300">
+              {deleting ? 'Deleting…' : '🗑 Delete'}
+            </button>
+          </div>
+        )}
 
         <div className="relative w-full p-6 sm:p-10">
           <div className="flex flex-wrap items-end gap-6 sm:gap-8">
@@ -169,6 +205,8 @@ export default function MovieDetailPage() {
             <h2 className="section-title">Synopsis</h2>
             <p className="body-lg text-[var(--on-surface)] leading-[1.8]">{movie.overview || "No synopsis available."}</p>
           </section>
+
+          {movie.id && <ReviewSection movieId={movie.id} />}
         </div>
         <div>
           {similar.length > 0 && (

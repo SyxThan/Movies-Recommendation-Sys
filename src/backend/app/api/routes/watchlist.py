@@ -19,7 +19,6 @@ def add_to_watchlist(
 ):
     """
     POST /watchlist?movie_id=1
-    Add a movie to the authenticated user's watchlist.
     """
     item = watchlist_service.add_to_watchlist(db, user_id=current_user.id, movie_id=movie_id)
     return {"message": "Movie added to watchlist", "movie_id": item.movie_id}
@@ -33,7 +32,6 @@ def remove_from_watchlist(
 ):
     """
     DELETE /watchlist/{movie_id}
-    Remove a movie from the authenticated user's watchlist.
     """
     watchlist_service.remove_from_watchlist(db, user_id=current_user.id, movie_id=movie_id)
 
@@ -45,7 +43,6 @@ def get_watchlist(
 ):
     """
     GET /watchlist
-    Retrieve all movies in the authenticated user's watchlist.
     """
     items = watchlist_service.get_watchlist(db, user_id=current_user.id)
     result = []

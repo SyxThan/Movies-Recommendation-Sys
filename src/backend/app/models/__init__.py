@@ -1,5 +1,5 @@
 from .base import Base
-from .enums import SenderEnum, ActionEnum
+from .enums import SenderEnum, ActionEnum, RoleEnum
 from .associations import UserGenre, MovieGenre
 from .user import User
 from .movie import Genre, Movie
@@ -10,6 +10,7 @@ __all__ = [
     "Base",
     "SenderEnum",
     "ActionEnum",
+    "RoleEnum",
     "UserGenre",
     "MovieGenre",
     "User",

@@ -35,17 +35,6 @@ def get_recommendations(
     """
     GET /recommends/me?top_n=10
 
-    Personalized recommendations using HYBRID pipeline:
-      - Matrix Factorization (latent features)
-      - Collaborative Filtering (user-user similarity)
-      - Watched-based (item-item from user's watch history)
-      - Content-based (cold-start fallback)
-
-    Returns: {
-        "recommendations": [...],
-        "strategy": "hybrid" | "partial_hybrid" | "watched_only" | "cold_start",
-        "sources": {"mf": int, "cf": int, "watched": int}
-    }
     """
     try:
         return get_hybrid_recommendations(db, current_user, top_n=top_n)
@@ -63,10 +52,6 @@ def get_similar_to_watched(
     """
     GET /recommends/similar-to-watched?top_n=10
 
-    Recommend movies SIMILAR to those the user has watched (or rated >= 3.5).
-    Uses item-based similarity over genres (Jaccard) + popularity boost.
-
-    Useful for the "Because you watched ..." section on the homepage.
     """
     # Loại bỏ phim đã xem/đánh giá
     watched = db.query(UserInteraction.movie_id).filter(
@@ -101,7 +86,6 @@ def get_similar_to_watched(
 
 
 def _get_cold_start_recommendations(db: Session, user: User, top_n: int) -> dict:
-    """Fallback strategy for new users (cold-start problem)."""
     preferred_genre_ids = [g.id for g in user.preferred_genres]
 
     watched = db.query(UserInteraction.movie_id).filter(

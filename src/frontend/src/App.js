@@ -17,6 +17,7 @@ import MovieDetailPage from './pages/MovieDetailPage';
 import AllMoviesPage from './pages/AllMoviesPage';
 import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
+import MovieManagementPage from './pages/admin/MovieManagementPage';
 
 import './index.css';
 
@@ -29,6 +30,7 @@ const SIDEBAR_ROUTES = [
   { path: '/discover', element: <DiscoverPage /> },
   { path: '/watchlist', element: <WatchlistPage /> },
   { path: '/movie/:id', element: <MovieDetailPage /> },
+  { path: '/admin/movies', element: <MovieManagementPage /> },
 ];
 
 function AppLayout() {

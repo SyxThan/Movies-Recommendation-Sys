@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, Numeric, DateTime, ForeignKey, Enum, UniqueConstraint, CheckConstraint
+from sqlalchemy import Column, Integer, BigInteger, Numeric, DateTime, Text, ForeignKey, Enum, UniqueConstraint, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -12,6 +12,8 @@ class Rating(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'))
     movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
     rating_score = Column(Numeric(2, 1))
+    review_text = Column(Text, nullable=True)
+    updated_at = Column(DateTime, onupdate=func.current_timestamp())
     created_at = Column(DateTime, server_default=func.current_timestamp())
 
     __table_args__ = (
