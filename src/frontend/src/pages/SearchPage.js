@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import movieApi from '../api/movieApi';
 import MovieCard from '../components/movie/MovieCard';
 import EmptyState from '../components/ui/EmptyState';
@@ -30,17 +30,7 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState('vote_average');
   const inputRef = useRef();
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (!query.trim()) { setSearched(false); setResults([]); return; }
-    const timer = setTimeout(() => doSearch(), 500);
-    return () => clearTimeout(timer);
-  }, [query, genre, sortBy]);
-
-  const doSearch = async () => {
+  const doSearch = useCallback(async () => {
     if (!query.trim()) return;
     setLoading(true);
     setSearched(true);
@@ -54,7 +44,17 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [query, sortBy, genre]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (!query.trim()) { setSearched(false); setResults([]); return; }
+    const timer = setTimeout(() => doSearch(), 500);
+    return () => clearTimeout(timer);
+  }, [query, doSearch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

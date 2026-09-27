@@ -13,7 +13,6 @@ export default function AllMoviesPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const [allMovies, setAllMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -81,7 +80,6 @@ export default function AllMoviesPage() {
         }
 
         const items = result.items || result.movies || [];
-        setAllMovies(items);
         setFilteredMovies(items);
         setHasMore(items.length === pageSize);
       } catch (err) {
