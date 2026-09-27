@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: movie-recommendation-api
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: src/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: DATABASE_URL
+        value: sqlite:///./movie_db.sqlite
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
