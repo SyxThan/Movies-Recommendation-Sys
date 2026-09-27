@@ -1,4 +1,11 @@
 {
+  "name": "movie-recommendation-system",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix src/frontend run build",
+    "start": "npm --prefix src/frontend start"
+  },
   "devDependencies": {
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.15",

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # LLM (Chatbot Agent)
     GOOGLE_API_KEY: str = ""
 
+    # CORS
+    CORS_ORIGINS: str = "*"
+
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),
         env_file_encoding="utf-8",
