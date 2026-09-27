@@ -24,37 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Auto Database Migration / Init ──────────────────────────────────────────
-@app.on_event("startup")
-def startup_db():
-    from sqlalchemy import text
-    from app.db.session import engine
-    from app.models.base import Base
-    import app.models  # noqa: F401
-
-    try:
-        # Create all tables if not exist (especially for fresh PostgreSQL)
-        Base.metadata.create_all(bind=engine)
-
-        # Migrate missing columns for existing SQLite / PostgreSQL databases
-        with engine.begin() as conn:
-            try:
-                conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'"))
-            except Exception:
-                pass
-
-            try:
-                conn.execute(text("ALTER TABLE ratings ADD COLUMN review_text TEXT"))
-            except Exception:
-                pass
-
-            try:
-                conn.execute(text("ALTER TABLE ratings ADD COLUMN updated_at TIMESTAMP"))
-            except Exception:
-                pass
-    except Exception as e:
-        print(f"[Database Startup Notice] {e}")
-
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(auth.router,      prefix="/api/v1")
 app.include_router(movies.router,    prefix="/api/v1")
